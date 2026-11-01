@@ -15,6 +15,19 @@ Format (keep it consistent):
 
 ## Entries
 
+### 2026-11-01 — HTML + CSS created (T0.3, T0.4 → Done)
+
+- Created `index.html` (220 lines): full HP-10B layout — 5×7 keypad grid with 6th column
+  in rows 1–2, LCD display area, annunciator line (shift, INPUT, PEND, BEGIN, battery),
+  HP branding. All keys have `data-key` attributes for JS dispatch.
+- Created `styles.css` (370 lines): exact HP-10B visual match — black body, green/olive
+  LCD background, dark gray keys with white labels, yellow shift labels, orange SHIFT key,
+  responsive breakpoints for mobile/tablet/deskop.
+- Logged issue I1: large `replace_file` payloads cause JSON parse errors in the Bionic
+  tool-call layer. Workaround: use `shell_command` heredocs or smaller chunked writes.
+- **Not yet committed** at time of logging; commit follows.
+- Related: T0.3, T0.4, I1.
+
 ### 2026-11-01 — specs.md authored (T0.2 → Done)
 
 - Wrote the full authoritative `specs.md` (17 sections + 2 appendices): overview, tech

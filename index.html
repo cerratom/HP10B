@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HP-10B Business Calculator</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="device">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-top">
+        <div class="hp-brand">
+          <div class="hp-logo" aria-hidden="true">hp</div>
+          <div class="hp-name">HEWLETT<br>PACKARD</div>
+        </div>
+        <div class="business">BUSINESS</div>
+      </div>
+      <div class="model">10B</div>
+    </div>
+
+    <!-- Display -->
+    <div class="display-area">
+      <div class="annunciators">
+        <span id="ann-shift" class="ann" aria-label="Shift active">→</span>
+        <span id="ann-input" class="ann" aria-label="Input separator">:</span>
+        <span id="ann-pend" class="ann" aria-label="Pending operation">PEND</span>
+        <span id="ann-begin" class="ann" aria-label="Begin mode">BEGIN</span>
+      </div>
+      <div class="lcd" id="lcd" role="status" aria-live="polite">
+        <span id="lcd-text">0.00000</span>
+      </div>
+    </div>
+
+    <!-- Keypad -->
+    <div class="keypad" id="keypad" role="group" aria-label="Calculator keypad">
+
+      <!-- Row 1: 6 keys -->
+      <div class="key-row">
+        <button class="key" data-key="N" data-shift="XPYR" aria-label="N, shift: times P/YR">
+          <span class="shift-label">×P/YR</span>
+          <span class="primary">N</span>
+        </button>
+        <button class="key" data-key="IYR" data-shift="NOM" aria-label="I/YR, shift: NOM percent">
+          <span class="shift-label">NOM %</span>
+          <span class="primary">I/YR</span>
+        </button>
+        <button class="key" data-key="PV" data-shift="EFF" aria-label="PV, shift: EFF percent">
+          <span class="shift-label">EFF %</span>
+          <span class="primary">PV</span>
+        </button>
+        <button class="key" data-key="PMT" data-shift="PYR" aria-label="PMT, shift: P/YR">
+          <span class="shift-label">P/YR</span>
+          <span class="primary">PMT</span>
+        </button>
+        <button class="key" data-key="FV" data-shift="AMORT" aria-label="FV, shift: AMORT">
+          <span class="shift-label">AMORT</span>
+          <span class="primary">FV</span>
+        </button>
+        <button class="key" data-key="SIGMA_PLUS" data-shift="SIGMA_MINUS" aria-label="Sigma plus, shift: Sigma minus">
+          <span class="shift-label">Σ−</span>
+          <span class="primary">Σ+</span>
+        </button>
+      </div>
+
+      <!-- Row 2: 6 keys -->
+      <div class="key-row">
+        <button class="key" data-key="PCT" data-shift="PCTCHG" aria-label="Percent, shift: percent change">
+          <span class="shift-label">%CHG</span>
+          <span class="primary">%</span>
+        </button>
+        <button class="key" data-key="RCL" data-shift="STO" aria-label="Recall, shift: Store">
+          <span class="shift-label">STO</span>
+          <span class="primary">RCL</span>
+        </button>
+        <button class="key" data-key="CFJ" data-shift="NJ" aria-label="Cash flow j, shift: N j">
+          <span class="shift-label">Nj</span>
+          <span class="primary">CFj</span>
+        </button>
+        <button class="key" data-key="CST" data-shift="IRR" aria-label="Cost, shift: IRR per year">
+          <span class="shift-label">IRR/YR</span>
+          <span class="primary">CST</span>
+        </button>
+        <button class="key" data-key="PRC" data-shift="NPV" aria-label="Price, shift: NPV">
+          <span class="shift-label">NPV</span>
+          <span class="primary">PRC</span>
+        </button>
+        <button class="key" data-key="MAR" data-shift="MU" aria-label="Margin, shift: Markup">
+          <span class="shift-label">MU</span>
+          <span class="primary">MAR</span>
+        </button>
+      </div>
+
+      <!-- Row 3: 5 keys -->
+      <div class="key-row key-row-5">
+        <button class="key key-wide" data-key="INPUT" data-shift="CLEARALL" aria-label="Input separator, shift: Clear All">
+          <span class="shift-label">CLEAR ALL</span>
+          <span class="primary">INPUT</span>
+        </button>
+        <button class="key" data-key="TO_M" data-shift="CLSIGMA" aria-label="To M, shift: Clear Sigma">
+          <span class="shift-label">CL Σ</span>
+          <span class="primary">→M</span>
+        </button>
+        <button class="key" data-key="RM" data-shift="LPAREN" aria-label="Recall M, shift: open paren">
+          <span class="shift-label">(</span>
+          <span class="primary">RM</span>
+        </button>
+        <button class="key" data-key="M_PLUS" data-shift="RPAREN" aria-label="M plus, shift: close paren">
+          <span class="shift-label">)</span>
+          <span class="primary">M+</span>
+        </button>
+        <button class="key" data-key="BACK" data-shift="RND" aria-label="Backspace, shift: Round">
+          <span class="shift-label">RND</span>
+          <span class="primary">◄</span>
+        </button>
+      </div>
+
+      <!-- Row 4: 5 keys -->
+      <div class="key-row key-row-5">
+        <button class="key" data-key="NEGATE" data-shift="SCI_E" aria-label="Plus/minus, shift: scientific E">
+          <span class="shift-label">E</span>
+          <span class="primary">+/−</span>
+        </button>
+        <button class="key" data-key="7" data-shift="XBAR_YBAR" aria-label="7, shift: x-bar and y-bar">
+          <span class="shift-label">x̄,ȳ</span>
+          <span class="primary">7</span>
+        </button>
+        <button class="key" data-key="8" data-shift="SX_SY" aria-label="8, shift: Sx and Sy">
+          <span class="shift-label">Sx,Sy</span>
+          <span class="primary">8</span>
+        </button>
+        <button class="key" data-key="9" data-shift="SIGMAX_SIGMAY" aria-label="9, shift: sigma x and sigma y">
+          <span class="shift-label">σx,σy</span>
+          <span class="primary">9</span>
+        </button>
+        <button class="key" data-key="DIV" data-shift="RECIP" aria-label="Divide, shift: one over x">
+          <span class="shift-label">1/x</span>
+          <span class="primary">÷</span>
+        </button>
+      </div>
+
+      <!-- Row 5: 5 keys -->
+      <div class="key-row key-row-5">
+        <button class="key" data-key="SWAP" data-shift="XHAT_R" aria-label="Swap, shift: x-hat and r">
+          <span class="shift-label">x̂,r</span>
+          <span class="primary">K</span>
+        </button>
+        <button class="key" data-key="4" data-shift="YHAT_M" aria-label="4, shift: y-hat and m">
+          <span class="shift-label">ŷ,m</span>
+          <span class="primary">4</span>
+        </button>
+        <button class="key" data-key="5" data-shift="XBARW" aria-label="5, shift: x-bar weighted">
+          <span class="shift-label">x̄w</span>
+          <span class="primary">5</span>
+        </button>
+        <button class="key" data-key="6" data-shift="YX" aria-label="6, shift: y to the x">
+          <span class="shift-label">y<sup>x</sup></span>
+          <span class="primary">6</span>
+        </button>
+        <button class="key" data-key="MUL" data-shift="SQR" aria-label="Multiply, shift: x squared">
+          <span class="shift-label">x²</span>
+          <span class="primary">×</span>
+        </button>
+      </div>
+
+      <!-- Row 6: 5 keys -->
+      <div class="key-row key-row-5">
+        <button class="key key-shift" data-key="SHIFT" aria-label="Shift">
+          <span class="primary">⇧</span>
+        </button>
+        <button class="key" data-key="1" data-shift="EXP" aria-label="1, shift: e to the x">
+          <span class="shift-label">e<sup>x</sup></span>
+          <span class="primary">1</span>
+        </button>
+        <button class="key" data-key="2" data-shift="LN" aria-label="2, shift: natural log">
+          <span class="shift-label">LN</span>
+          <span class="primary">2</span>
+        </button>
+        <button class="key" data-key="3" data-shift="FACT" aria-label="3, shift: factorial">
+          <span class="shift-label">n!</span>
+          <span class="primary">3</span>
+        </button>
+        <button class="key" data-key="SUB" data-shift="SQRT" aria-label="Minus, shift: square root">
+          <span class="shift-label">√x</span>
+          <span class="primary">−</span>
+        </button>
+      </div>
+
+      <!-- Row 7: 5 keys -->
+      <div class="key-row key-row-5">
+        <button class="key" data-key="CLEAR" data-shift="OFF" aria-label="Clear, shift: Off">
+          <span class="shift-label">OFF</span>
+          <span class="primary">C</span>
+          <span class="sub-label">ON</span>
+        </button>
+        <button class="key" data-key="0" data-shift="BEGEND" aria-label="0, shift: Begin/End">
+          <span class="shift-label">BEG/END</span>
+          <span class="primary">0</span>
+        </button>
+        <button class="key" data-key="DECIMAL" data-shift="PERIOD_COMMA" aria-label="Decimal point, shift: period/comma">
+          <span class="shift-label">•/,</span>
+          <span class="primary">•</span>
+        </button>
+        <button class="key" data-key="EQUALS" data-shift="DISP" aria-label="Equals, shift: Display format">
+          <span class="shift-label">DISP</span>
+          <span class="primary">=</span>
+        </button>
+        <button class="key" data-key="ADD" data-shift="SQUARE" aria-label="Plus, shift: x squared">
+          <span class="shift-label">x²</span>
+          <span class="primary">+</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

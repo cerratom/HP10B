@@ -1,0 +1,370 @@
+/* HP-10B Business Calculator — styles.css */
+/* Visual source of truth: Assets/HP-10B.jpg */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --body: #1a1a1a;
+  --body-edge: #111;
+  --key-bg: #2a2a2a;
+  --key-hover: #333;
+  --key-active: #222;
+  --key-border: #111;
+  --key-text: #e8e8e8;
+  --shift-label: #d4b896;
+  --shift-key-bg: #c87533;
+  --shift-key-hover: #d48540;
+  --lcd-bg: #c8d8b0;
+  --lcd-text: #1a2a1a;
+  --lcd-border: #333;
+  --ann-text: #4a5a3a;
+  --hp-red: #e60012;
+  --model-text: #d0d0d0;
+  --business-text: #b0b0b0;
+  --gap: 6px;
+}
+
+html, body {
+  height: 100%;
+  background: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ===== DEVICE BODY ===== */
+#device {
+  background: var(--body);
+  border-radius: 18px;
+  padding: 20px 22px 24px;
+  box-shadow:
+    0 20px 60px rgba(0,0,0,0.5),
+    0 4px 12px rgba(0,0,0,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+  width: 100%;
+  max-width: 420px;
+  min-width: 320px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ===== HEADER ===== */
+.header {
+  margin-bottom: 14px;
+  padding: 0 4px;
+}
+
+.header-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.hp-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hp-logo {
+  width: 32px;
+  height: 32px;
+  background: var(--hp-red);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+  font-style: italic;
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
+
+.hp-name {
+  color: var(--model-text);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  line-height: 1.3;
+}
+
+.business {
+  color: var(--business-text);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 2.5px;
+  padding-top: 4px;
+}
+
+.model {
+  color: var(--model-text);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-top: 4px;
+}
+
+/* ===== DISPLAY AREA ===== */
+.display-area {
+  margin-bottom: 16px;
+  padding: 8px 10px;
+  background: #222;
+  border-radius: 8px;
+  box-shadow:
+    inset 0 2px 8px rgba(0,0,0,0.6),
+    0 1px 0 rgba(255,255,255,0.04);
+}
+
+.annunciators {
+  display: flex;
+  gap: 10px;
+  padding: 0 4px 4px;
+  min-height: 16px;
+}
+
+.ann {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: var(--ann-text);
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+
+.ann.active {
+  opacity: 1;
+}
+
+.lcd {
+  background: var(--lcd-bg);
+  border-radius: 4px;
+  padding: 10px 14px;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  box-shadow:
+    inset 0 1px 4px rgba(0,0,0,0.15),
+    0 1px 0 rgba(255,255,255,0.08);
+}
+
+#lcd-text {
+  font-family: "SF Mono", "Menlo", "Consolas", "Liberation Mono", "Courier New", monospace;
+  font-size: 28px;
+  font-weight: 400;
+  color: var(--lcd-text);
+  letter-spacing: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  direction: rtl; /* right-align with proper truncation */
+}
+
+/* ===== KEYPAD ===== */
+.keypad {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+
+.key-row {
+  display: flex;
+  gap: var(--gap);
+}
+
+.key-row-5 {
+  /* 5-key rows: keys are slightly wider */
+}
+
+.key-row-5 .key {
+  flex: 1;
+}
+
+.key-row-5 .key-wide {
+  flex: 1.3;
+}
+
+/* ===== KEYS ===== */
+.key {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 52px;
+  background: var(--key-bg);
+  border: 1px solid var(--key-border);
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 2px;
+  transition: background 0.08s, transform 0.05s;
+  outline: none;
+  font-family: inherit;
+}
+
+.key:hover {
+  background: var(--key-hover);
+}
+
+.key:active,
+.key.pressed {
+  background: var(--key-active);
+  transform: scale(0.97);
+}
+
+.key:focus-visible {
+  box-shadow: 0 0 0 2px #4a90d9;
+}
+
+.key .primary {
+  color: var(--key-text);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.key .shift-label {
+  color: var(--shift-label);
+  font-size: 8.5px;
+  font-weight: 500;
+  line-height: 1.2;
+  margin-bottom: 1px;
+  letter-spacing: 0.2px;
+}
+
+.key .sub-label {
+  color: var(--shift-label);
+  font-size: 8px;
+  font-weight: 500;
+  margin-top: 1px;
+}
+
+.key sup {
+  font-size: 0.7em;
+}
+
+/* SHIFT key (orange) */
+.key-shift {
+  background: var(--shift-key-bg) !important;
+  border-color: #a05a20;
+}
+
+.key-shift:hover {
+  background: var(--shift-key-hover) !important;
+}
+
+.key-shift:active,
+.key-shift.pressed {
+  background: #b06528 !important;
+}
+
+.key-shift .primary {
+  color: #fff;
+  font-size: 18px;
+}
+
+.key-shift.active {
+  background: #e09050 !important;
+  box-shadow: 0 0 8px rgba(200, 117, 51, 0.6);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 380px) {
+  #device {
+    padding: 14px 14px 18px;
+    border-radius: 14px;
+  }
+
+  .key {
+    height: 46px;
+  }
+
+  .key .primary {
+    font-size: 13px;
+  }
+
+  .key .shift-label {
+    font-size: 7.5px;
+  }
+
+  #lcd-text {
+    font-size: 24px;
+  }
+
+  .hp-logo {
+    width: 26px;
+    height: 26px;
+    font-size: 12px;
+  }
+
+  .model {
+    font-size: 18px;
+  }
+
+  .business {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 300px) {
+  #device {
+    padding: 10px 10px 14px;
+    border-radius: 12px;
+  }
+
+  .key {
+    height: 42px;
+    border-radius: 5px;
+  }
+
+  .key .primary {
+    font-size: 12px;
+  }
+
+  .key .shift-label {
+    font-size: 7px;
+  }
+
+  #lcd-text {
+    font-size: 20px;
+  }
+
+  .display-area {
+    padding: 6px 8px;
+  }
+
+  .lcd {
+    padding: 8px 10px;
+    min-height: 40px;
+  }
+}
+
+@media (min-width: 600px) {
+  #device {
+    max-width: 440px;
+  }
+
+  .key {
+    height: 56px;
+  }
+
+  .key .primary {
+    font-size: 16px;
+  }
+
+  #lcd-text {
+    font-size: 32px;
+  }
+}

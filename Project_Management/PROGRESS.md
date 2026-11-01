@@ -28,8 +28,8 @@ Live task board. Update this **every** time a task changes state.
 |-------|------|--------|-------|
 | T0.1  | Project scaffolding (git, docs, workflow) | `Done` | git repo + README/AGENTS/specs + `Project_Management/` (PROGRESS/CHANGELOG/DECISIONS/ISSUES). |
 | T0.2  | Authoritative specification (`specs.md`) | `Done` | Full spec authored; key map verified against `Assets/HP-10B.jpg`; open items tracked in `specs.md → Appendix B`. |
-| T0.3  | HTML skeleton (`index.html`) | `Not Started` | 5×7 keypad grid + display + annunciator line. |
-| T0.4  | CSS layout & exact styling (`styles.css`) | `Not Started` | Match `Assets/HP-10B.jpg` (colors, bevel, fonts, LCD). |
+| T0.3  | HTML skeleton (`index.html`) | `Done` | 220 lines: 5×7 keypad grid (6th col rows 1–2), LCD display, annunciator line, HP branding. Awaiting visual QA (T3.5). |
+| T0.4  | CSS layout & exact styling (`styles.css`) | `Done` | 370 lines: black body, green/olive LCD, dark keys, yellow shift labels, orange SHIFT, responsive breakpoints. Awaiting visual QA (T3.5). |
 | T0.5  | Core state model + display rendering (`app.js`) | `Not Started` | Single `state` object; render loop; number formatting. |
 | T0.6  | Key dispatch / input state machine | `Not Started` | entry vs. pending-operator vs. result states. |
 | T0.7  | Keyboard mapping | `Not Started` | Physical keys → actions (see `specs.md → Keyboard Mapping`). |
@@ -92,3 +92,4 @@ The calculator is considered **shipped** when:
 | Date | Change |
 |------|--------|
 | 2026-11-01 | Board created. T0.1 `Done`, T0.2 `In Progress`, all else `Not Started`. |
+| 2026-11-01 | T0.2 → `Done`. T0.3 → `Done` (index.html created, 220 lines). T0.4 → `Done` (styles.css created, 370 lines). T0.5–T0.8 remain `Not Started`. |
