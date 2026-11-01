@@ -1,0 +1,136 @@
+# DECISIONS — HP-10B Web Calculator
+
+Decision log. Record **why** a choice was made so future sessions don't re-litigate it.
+
+Format:
+
+```
+## D<id> — <title>
+- **Date:** YYYY-MM-DD
+- **Status:** Proposed | Accepted | Superseded by D<id>
+- **Decision:** <the choice>
+- **Context / why:** <the reasoning, trade-offs considered>
+- **Alternatives rejected:** <what we said no to, and why>
+```
+
+---
+
+## D1 — Pure vanilla JS, no backend, no build step
+- **Date:** 2026-11-01
+- **Status:** Accepted
+- **Decision:** Implement the entire calculator in vanilla JavaScript + CSS + HTML.
+  No framework, no bundler, no package manager, no Python/server, no REST API.
+- **Context / why:** The HP-10B is a self-contained state machine with no I/O beyond
+  the display. All math is deterministic and fits comfortably in IEEE-754 doubles
+  (≈15–16 significant digits; the HP-10B stores 12). There is nothing to "serve" —
+  the least moving parts is a static page that opens from `index.html`.
+- **Alternatives rejected:**
+  - Python backend + API — rejected: adds a process, a port, CORS, and a deploy
+    target for zero functional benefit.
+  - Framework (React/Vue) — rejected: the app is a single component; a framework
+    adds build complexity and weight with no payoff.
+  - Web Worker for math — rejected for v1: calculations are trivially fast; revisit
+    only if IRR iteration ever feels slow (it won't).
+
+## D2 — Entry point is `index.html` (must work over `file://`)
+- **Date:** 2026-11-01
+- **Status:** Accepted
+- **Decision:** The app must load by opening `index.html` directly, with no server.
+- **Context / why:** User requirement — "load it just using index.html", "runs fast on
+  the web", "least moving parts". A static page satisfies this and is trivial to host.
+- **Alternatives rejected:** SPA router / multi-page — unnecessary for a single-screen app.
+
+## D3 — Persistence via `sessionStorage` (Option B)
+- **Date:** 2026-11-01
+- **Status:** Accepted
+- **Decision:** Serialize the single `state` object to `sessionStorage` on every
+  mutation; restore on page load. Clear on power-OFF.
+- **Context / why:** The HP-10B has **volatile** memory — power off clears everything.
+  `sessionStorage` is the faithful web analog: it survives a refresh (like leaving the
+  calculator on) but is wiped when the tab/browser closes (like power off). The JS
+  `state` object remains the **single source of truth**; `sessionStorage` is only a
+  snapshot.
+- **Alternatives rejected:**
+  - `localStorage` (Option A) — rejected: would persist across browser restarts, which
+    does NOT match the calculator's volatile-memory behavior.
+  - `IndexedDB` — rejected: overkill for a small serializable state object.
+  - No persistence — rejected: user explicitly wants refresh to keep state.
+
+## D4 — App structure: exactly 3 code files
+- **Date:** 2026-11-01
+- **Status:** Accepted
+- **Decision:** `index.html` + `styles.css` + `app.js`. No subfolders, no modules.
+- **Context / why:** Keeps the project dead simple and easy to reason about. `app.js`
+  is organized internally into clearly-named sections (state, formatting, engines,
+  keyboard, persistence) rather than split across files. If it grows large, splitting
+  into ES modules is a later, reversible step.
+- **Alternatives rejected:** ES modules / many files — deferred; adds complexity before
+  we know we need it.
+
+## D5 — UI fidelity: exact match to the physical HP-10B
+- **Date:** 2026-11-01
+- **Status:** Accepted
+- **Decision:** The UI must look the same as the original (5×7 keypad, black body,
+  green/olive LCD, orange SHIFT key, yellow shift labels, white/gray key labels).
+- **Context / why:** User requirement — "everything should look the same as the
+  original model"; the photo and manual are the source of truth.
+- **Alternatives rejected:** A "modernized" UI — rejected; fidelity is the point.
+
+## D6 — Full feature parity
+- **Date:** 2026-11-01
+- **Status:** Accepted
+- **Decision:** Implement every HP-10B feature: TVM, interest conversion, NPV/IRR,
+  business percentages, statistics & regression, amortization, math functions, and all
+  memory/clearing behavior.
+- **Context / why:** User requirement — "full set of features".
+- **Alternatives rejected:** A subset / MVP — rejected; scope is the full calculator.
+
+## D7 — Keyboard support is required
+- **Date:** 2026-11-01
+- **Status:** Accepted
+- **Decision:** Full keyboard mapping in addition to the on-screen keys.
+- **Context / why:** User requirement — "keyboard must be supported".
+- **Alternatives rejected:** Mouse-only — rejected.
+
+## D8 — Manual worked-examples are the acceptance tests
+- **Date:** 2026-11-01
+- **Status:** Accepted
+- **Decision:** Use the HP-10B manual's worked examples as the acceptance test suite;
+  a feature is `Verified` only when its example reproduces exactly.
+- **Context / why:** User requirement — "use the test cases"; the manual is the
+  behavioral source of truth and gives concrete, verifiable numbers.
+- **Alternatives rejected:** Invented test vectors — rejected in favor of the
+  manufacturer's own examples (more authoritative).
+
+## D9 — Target: modern browsers, use modern web platform
+- **Date:** 2026-11-01
+- **Status:** Accepted
+- **Decision:** Target current Chrome/Firefox/Safari/Edge. Use modern CSS/JS
+  (grid, custom properties, `sessionStorage`, `Math`, `Number`, etc.). No legacy
+  (IE) support, no polyfills.
+- **Context / why:** User requirement — "any modern browser, not too worry about
+  legacy, use all the technology available to a modern browser".
+- **Alternatives rejected:** IE11 / old-Safari support — rejected.
+
+## D10 — Record-keeping system (long-lived project)
+- **Date:** 2026-11-01
+- **Status:** Accepted
+- **Decision:** Maintain git + `PROGRESS.md` (task board) + `CHANGELOG.md` (history)
+  + `DECISIONS.md` (this log) + `ISSUES.md` (bugs). Status vocabulary:
+  `Not Started → In Progress → Done → Verified` plus `Blocked`.
+- **Context / why:** User wants durable progress records and a way to track done vs.
+  pending across many sessions. "Verified" = passed its manual worked-example.
+- **Alternatives rejected:** External tracker (Jira/Trello) — rejected; keep it in-repo
+  so it travels with the code and is greppable.
+
+## D11 — Internal numeric precision: 12 significant digits
+- **Date:** 2026-11-01
+- **Status:** Accepted
+- **Decision:** Model the HP-10B's "signed 12-digit number with a signed 3-digit
+  exponent" storage. Compute in IEEE-754 doubles; round to the display format for
+  output; `RND` commits rounding into the stored value.
+- **Context / why:** Manual (p.26) states numbers are stored as 12-digit numbers.
+  Doubles give more than enough headroom; we emulate the 12-digit behavior for
+  fidelity (display, rounding, scientific-notation thresholds).
+- **Alternatives rejected:** Arbitrary-precision (BigInt/decimal) — rejected; not
+  needed for fidelity and adds complexity.

@@ -1,0 +1,25 @@
+# --- Node / build artifacts (not expected, but keep clean) ---
+node_modules/
+dist/
+build/
+*.log
+npm-debug.log*
+yarn-error.log*
+
+# --- OS / editor cruft ---
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*~
+.idea/
+.vscode/
+
+# --- Local scratch / secrets ---
+.env
+.env.*
+*.local
+tmp/
+scratch/
+
+# --- Note: Assets/ (photo + manual) IS tracked on purpose (source of truth). ---
