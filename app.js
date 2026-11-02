@@ -667,6 +667,15 @@ function factorial() {
   for (var i = 2; i <= n; i++) value *= i;
   result(value);
 }
+function powerKey() {
+  if (state.other === null) { pressOp('^'); return; }
+  commitEntry();
+  var base = state.other, exponent = state.displayVal;
+  state.other = null; state.inputArmed = false;
+  var value = applyBinary('^', base, exponent);
+  if (typeof value !== 'number') { setError('Error - Func'); return; }
+  result(value);
+}
 function marginResult(markup) {
   var value;
   if (markup) value = state.CST ? (state.PRC - state.CST) / state.CST * 100 : NaN;
@@ -841,7 +850,7 @@ var dispatch = {
   EQUALS: pressEquals, SWAP: pressSwap,
   ADD: function () { pressOp('+'); }, SUB: function () { pressOp('-'); },
   MUL: function () { pressOp('*'); }, DIV: function () { pressOp('/'); },
-  YX: function () { pressOp('^'); },
+  YX: powerKey,
   PCT: percent, PCTCHG: percentChange, FACT: factorial,
   N: function () { tvmKey('N'); }, IYR: function () { tvmKey('IYR'); },
   PV: function () { tvmKey('PV'); }, PMT: function () { tvmKey('PMT'); },
