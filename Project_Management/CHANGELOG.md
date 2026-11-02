@@ -15,6 +15,18 @@ Format (keep it consistent):
 
 ## Entries
 
+### 2026-11-02 — v1.0.0 — Shipped: 34/34 acceptance checks pass in five browsers
+
+- Deployed to GitHub Pages (https://cerratom.github.io/HP10B/, initially from the
+  feature branch) which unblocked Safari testing (T4.3 `Blocked → Verified`).
+- User reports **all 34 `?test=1` checks PASS in Chromium, Chrome, Firefox, Edge and
+  Safari**. T2.4, T3.2, T4.2, T4.3 promoted to `Verified`; T4.1 `Done`.
+- The "Definition of shipped" is met: every Phase 1–3 feature is at least `Done`, every
+  feature with a manual worked-example is `Verified`, and the regression suite passes
+  in all target browsers.
+- **Merged `t4-expand-acceptance-tests` into `main`**; Pages repointed to `main`.
+- Related: T2.4, T3.2, T4.1–T4.3.
+
 ### 2026-11-02 — A1–A31 verified in all four browsers; A32–A34 added for errors/clearing
 
 - User ran the expanded suite and reported **all 31 checks PASS in Chromium, Chrome,

@@ -56,7 +56,7 @@ Live task board. Update this **every** time a task changes state.
 | T2.1  | Business registers (N, I/YR, PV, PMT, FV, CST, PRC, MAR/MU, P/YR, EFF%) | `Verified` | Store (`⇧STO` + register name), recall, and applicable solve operations implemented; A27 (STO into CF0, NPV→PV, IRR→IYR, RCL IYR) passes in Chromium, Chrome, Firefox, Edge. |
 | T2.2  | `M` register (`→M`, `RM`, `M+`) | `Verified` | A18 (manual p. 37: 17 →M, +14.25, +16.95, −4.65, RM → 43.55) passes in Chromium, Chrome, Firefox, Edge. |
 | T2.3  | Numbered registers `R0`–`R.4` (`STO`/`RCL`) | `Verified` | 15 slots with two-step selection, `STO` <op> register arithmetic (manual p. 81), and R0–R14 aliasing the cash-flow list; A27/A31 pass in Chromium, Chrome, Firefox, Edge. |
-| T2.4  | Clearing semantics (`C`, `◄`, `CLEAR ALL`, `CL Σ`) | `Done` | Clear current entry/calculation, all memory, and statistics handlers implemented; A32–A34 (manual pp. 9–10) added headlessly, browser confirmation pending. |
+| T2.4  | Clearing semantics (`C`, `◄`, `CLEAR ALL`, `CL Σ`) | `Verified` | A32/A33/A34 (manual pp. 9–10: error restore, C entry clearing, `ALL CLr`/`CL Σ`) pass in Chromium, Chrome, Firefox, Edge, Safari. |
 | T2.5  | `SWAP` | `Verified` | Swaps pending values and toggles hidden two-result outputs (`⇧K` in A13/A15/A26) and K constants (A19–A21) pass in Chromium, Chrome, Firefox, Edge. |
 
 ## Phase 3 — Fidelity & polish
@@ -64,7 +64,7 @@ Live task board. Update this **every** time a task changes state.
 | ID    | Task | Status | Notes |
 |-------|------|--------|-------|
 | T3.1  | Annunciators (shift, `:`, PEND, BEGIN, low-battery) | `Done` | Shift, input, pending, and BEGIN indicators reflect state; low-battery remains off as specified. |
-| T3.2  | Error messages | `Done` | Manual error strings and triggers transcribed; distinct function, interest, period, statistics, solve, and overflow messages wired. A32 verifies `Error - Func` on ÷0 plus C-restore headlessly; browser pending. |
+| T3.2  | Error messages | `Verified` | Manual error strings and triggers transcribed; distinct function, interest, period, statistics, solve, and overflow messages wired. A32 (`Error - Func` on ÷0, C-restore) passes in all five browsers. |
 | T3.3  | Blinking entry cursor | `Done` | Cursor appears during entry and hides on operation/message. |
 | T3.4  | Power on/off (`OFF`/`ON`) | `Done` | OFF clears session memory; C restores a fresh powered-on state. |
 | T3.5  | Visual QA against `Assets/HP-10B.jpg` | `Verified` | User confirmed in Edge that the calculator looks and functions right, including fixed width and LCD alignment/height. |
@@ -74,12 +74,14 @@ Live task board. Update this **every** time a task changes state.
 | ID    | Task | Status | Notes |
 |-------|------|--------|-------|
 | T4.1  | Acceptance tests (manual worked examples) | `Done` | Full manual worked-example coverage implemented: 34 checks (A1–A34) from manual pp. 9–10, 13–15, 17–18, 22, 26–29, 34–37, 78–84, 89–92; all pass headlessly. |
-| T4.2  | Regression test suite | `In Progress` | A1–A31 confirmed PASS by the user in Chromium, Chrome, Firefox, Edge; A32–A34 headless 34/34, browser re-run pending. Harness parses shift map from `index.html` so the two can't drift. |
-| T4.3  | Cross-browser verification | `Blocked` | User verified PASS in Chromium, Chrome, Firefox, and Edge. Safari cannot be tested until the app is deployed. |
+| T4.2  | Regression test suite | `Verified` | 34/34 checks pass in Chromium, Chrome, Firefox, Edge and Safari (via GitHub Pages). Harness parses shift map from `index.html` so the two can't drift. |
+| T4.3  | Cross-browser verification | `Verified` | User confirmed all 34 `?test=1` checks PASS in Chromium, Chrome, Firefox, Edge and Safari (deployed at https://cerratom.github.io/HP10B/). |
 
 ---
 
 ## Definition of "shipped"
+
+> **Shipped: 2026-11-02** — all conditions below met (see CHANGELOG v1.0.0).
 
 The calculator is considered **shipped** when:
 
@@ -116,3 +118,4 @@ The calculator is considered **shipped** when:
 | 2026-11-02 | User reports all 15 `?test=1` checks PASS in a real browser. T1.6, T1.7, T1.8 → `Verified`. T4.1–T4.2 coverage and other browsers remain. |
 | 2026-11-02 | Keypad realigned to specs.md §5.1 (I12); K constants, amortization `PEr`/Int/Prin/bAL cycle (D17), DISP-`=` full-precision view, STO/RCL extensions (D19) implemented. Runner expanded to A1–A31; 31/31 headless, browser confirmation pending. |
 | 2026-11-02 | User reports all 31 `?test=1` checks PASS in Chromium, Chrome, Firefox, and Edge. T0.5, T0.6, T1.1, T1.3, T1.9, T2.1–T2.3, T2.5 → `Verified`. Added A32–A34 (errors/clearing) and fixed I13; 34/34 headless, browser pending. |
+| 2026-11-02 | Deployed to GitHub Pages (feature branch) for Safari testing; user reports **34/34 PASS in Chromium, Chrome, Firefox, Edge and Safari**. T2.4, T3.2, T4.2, T4.3 → `Verified`; T4.1 `Done`. Shipped definition met; merged `t4-expand-acceptance-tests` → `main`. |
