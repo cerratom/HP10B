@@ -314,7 +314,7 @@ state = {
 - **Equation** (END mode; BEGIN multiplies the PMT term by `(1+i)`):
 
   ```
-  PV + PMT * ( (1 - (1+i)^-N) / i ) * (1 + [BEGIN ? 1 : 0]) + FV * (1+i)^-N = 0
+  PV + PMT * ( (1 - (1+i)^-N) / i ) * (BEGIN ? (1+i) : 1) + FV * (1+i)^-N = 0
   ```
 
 - **Solving for `I/YR`:** transcendental — solve numerically (bisection + Newton, or a
@@ -322,7 +322,7 @@ state = {
   bound), then report `I/YR = i * P/YR * 100`.
 - **Sign convention:** money in vs. out follow the cash-flow sign convention (a loan's
   PV and PMT have opposite signs). Preserve the HP-10B's sign behavior.
-- **Edge cases:** `i = 0` (use `PV + PMT*N*(1+[BEGIN?1:0]) + FV = 0`), `N = 0`.
+- **Edge cases:** `i = 0` (use `PV + PMT*N + FV = 0`), `N = 0`.
 
 ### 9.2 Interest Conversion
 

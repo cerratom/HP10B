@@ -140,3 +140,9 @@ Format:
 - **Status:** Accepted
 - **Decision:** `;` followed by row and column invokes any physical key; common keys also have direct shortcuts.
 - **Context / why:** The complete keypad exceeds the number of convenient one-letter shortcuts. Row and column sequences give every button a stable keyboard path without conflicting with digit entry.
+
+## D13 — BEGIN timing in the TVM equation
+- **Date:** 2026-11-01
+- **Status:** Accepted
+- **Decision:** Multiply the payment annuity factor by `(1+i)` in BEGIN mode; keep PV and EFF in separate registers.
+- **Context / why:** Payments at the beginning of each period accrue one additional period of interest. The spec prose stated this but its displayed equation accidentally doubled the payment factor. The state model already defines EFF independently from PV; the scanned manual needs visual confirmation during acceptance review.

@@ -43,8 +43,8 @@ Live task board. Update this **every** time a task changes state.
 | T1.2  | Arithmetic (chained, two-number INPUT functions) | `In Progress` | Basic operators, INPUT, percent, and percent change implemented; chaining needs manual review. |
 | T1.3  | Math functions (x², √x, 1/x, y^x, e^x, LN, n!, E) | `In Progress` | Core handlers added; manual behavior and edge cases remain. |
 | T1.4  | Business percentages (`%`, `%CHG`, `MAR`, `MU`, `CST`, `PRC`) | `Not Started` | Margin/markup pair shares a register. |
-| T1.5  | Interest conversion (`NOM%` ↔ `EFF%`) | `Not Started` | Uses `P/YR`; NOM% shares I/YR register. |
-| T1.6  | TVM (`N`, `I/YR`, `PV`, `PMT`, `FV`, `P/YR`, `BEG/END`) | `Not Started` | Solve for any of the 5 given the other 4. |
+| T1.5  | Interest conversion (`NOM%` ↔ `EFF%`) | `Done` | Both directions and P/YR implemented; manual example A1 awaits real-browser verification. |
+| T1.6  | TVM (`N`, `I/YR`, `PV`, `PMT`, `FV`, `P/YR`, `BEG/END`) | `Done` | Solve all five variables, including numerical I/YR and BEGIN timing; manual example A12 awaits real-browser verification. |
 | T1.7  | NPV / IRR (cash flows, `Nj`) | `Not Started` | CF0 + up to 14 groups, ≤99 repetitions each. |
 | T1.8  | Statistics & regression (`Σ+`/`Σ−`, means, Sx/Sy, σx/σy, r, x̂/ŷ, m, x̄w) | `Not Started` | Summation registers n,Σx,Σy,Σx²,Σy²,Σxy. |
 | T1.9  | Amortization (`AMORT`) | `Not Started` | Periodic principal/interest breakdown. |
@@ -96,3 +96,4 @@ The calculator is considered **shipped** when:
 | 2026-11-01 | T0.5 → `Done`; T0.6 → `In Progress`. Connected state/rendering to the DOM and began button dispatch. |
 | 2026-11-01 | T0.7 and T0.8 → `Done`; T0.6 remains `In Progress`. Added keyboard access and connected existing persistence to UI actions. |
 | 2026-11-01 | T1.1–T1.3, T2.1, T2.4 → `In Progress`; T2.2 and T2.3 → `Done` as their handlers were wired. |
+| 2026-11-01 | T1.5 and T1.6 → `Done`. Added interest conversion and all five TVM solves. |

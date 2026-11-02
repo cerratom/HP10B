@@ -15,6 +15,13 @@ Format (keep it consistent):
 
 ## Entries
 
+### 2026-11-01 — Interest conversion and TVM solve
+
+- Implemented nominal/effective conversion using P/YR, with shared I/YR/NOM storage.
+- Implemented TVM solves for N, I/YR, PV, PMT, and FV, including BEGIN timing and zero-interest cases.
+- Corrected the BEGIN factor in the spec equation and added business-register recall through RCL.
+- Related: T1.5 and T1.6 (`Done`), D13, I3.
+
 ### 2026-11-01 — Extend key handlers and keyboard access
 
 - Added basic business and memory registers, display settings, percentage functions, factorial, and clearing handlers.

@@ -542,6 +542,81 @@ function businessRegister(name) {
   else state.displayVal = state[name];
   saveState(state); render();
 }
+function validPeriods() {
+  return Number.isFinite(state.PYR) && state.PYR > 0;
+}
+function effectiveRate() {
+  if (!validPeriods() || 1 + state.IYR / (100 * state.PYR) <= 0) { setError('Error - Func'); return; }
+  result(100 * Math.expm1(state.PYR * Math.log1p(state.IYR / (100 * state.PYR))));
+  state.EFF = state.displayVal; saveState(state);
+}
+function nominalRate() {
+  if (state.entering) { businessRegister('IYR'); return; }
+  if (!validPeriods() || 1 + state.EFF / 100 <= 0) { setError('Error - Func'); return; }
+  result(100 * state.PYR * Math.expm1(Math.log1p(state.EFF / 100) / state.PYR));
+  state.IYR = state.displayVal; saveState(state);
+}
+function effectiveKey() {
+  if (state.entering) { businessRegister('EFF'); return; }
+  effectiveRate();
+}
+function paymentFactor(rate, periods) {
+  if (Math.abs(rate) < 1e-12) return periods;
+  return Math.expm1(periods * Math.log1p(rate)) / rate;
+}
+function tvmBalance(rate) {
+  if (rate <= -1 || !Number.isFinite(rate)) return NaN;
+  var growth = Math.exp(state.N * Math.log1p(rate));
+  var timing = state.modes.annuity === 'BEGIN' ? 1 + rate : 1;
+  return state.PV * growth + state.PMT * timing * paymentFactor(rate, state.N) + state.FV;
+}
+function solveRate() {
+  var points = [-0.999999999, -0.99, -0.9, -0.5, -0.1, -0.01, -0.001, 0];
+  for (var p = -5; p <= 6; p += 0.2) points.push(Math.pow(10, p));
+  var low, high, fl;
+  for (var j = 0; j < points.length - 1; j++) {
+    var fa = tvmBalance(points[j]), fb = tvmBalance(points[j + 1]);
+    if (fa === 0) return points[j];
+    if (Number.isFinite(fa) && Number.isFinite(fb) && fa * fb < 0) {
+      low = points[j]; high = points[j + 1]; fl = fa; break;
+    }
+  }
+  if (low === undefined) return NaN;
+  for (var k = 0; k < 120; k++) {
+    var mid = (low + high) / 2, fm = tvmBalance(mid);
+    if (!Number.isFinite(fm)) return NaN;
+    if (Math.abs(fm) < 1e-12 || high - low < 1e-14 * Math.max(1, Math.abs(mid))) return mid;
+    if (fl * fm <= 0) high = mid;
+    else { low = mid; fl = fm; }
+  }
+  return (low + high) / 2;
+}
+function solveTvm(name) {
+  if (!validPeriods() || !Number.isFinite(state.N)) { setError('Error - Func'); return; }
+  var rate = state.IYR / (100 * state.PYR);
+  if (rate <= -1) { setError('Error - Func'); return; }
+  var growth = Math.exp(state.N * Math.log1p(rate));
+  var factor = paymentFactor(rate, state.N) * (state.modes.annuity === 'BEGIN' ? 1 + rate : 1);
+  var value;
+  if (name === 'FV') value = -state.PV * growth - state.PMT * factor;
+  else if (name === 'PV') value = -(state.FV + state.PMT * factor) / growth;
+  else if (name === 'PMT') value = -(state.PV * growth + state.FV) / factor;
+  else if (name === 'N') {
+    if (Math.abs(rate) < 1e-12) value = -(state.PV + state.FV) / state.PMT;
+    else {
+      var payment = state.PMT * (state.modes.annuity === 'BEGIN' ? 1 + rate : 1) / rate;
+      var ratio = (payment - state.FV) / (state.PV + payment);
+      value = ratio > 0 ? Math.log(ratio) / Math.log1p(rate) : NaN;
+    }
+  } else if (name === 'IYR') value = solveRate() * state.PYR * 100;
+  if (!Number.isFinite(value) || (name === 'N' && value < 0)) { setError('Error - Func'); return; }
+  state[name] = value;
+  result(value);
+}
+function tvmKey(name) {
+  if (state.entering) businessRegister(name);
+  else solveTvm(name);
+}
 function registerSelect(key) {
   var index = key.charAt(0) === '.' ? 10 + Number(key.charAt(1)) : Number(key);
   if (!Number.isInteger(index) || index < 0 || index >= state.R.length) return;
@@ -581,11 +656,13 @@ var dispatch = {
   MUL: function () { pressOp('*'); }, DIV: function () { pressOp('/'); },
   YX: function () { pressOp('^'); },
   PCT: percent, PCTCHG: percentChange, FACT: factorial,
-  N: function () { businessRegister('N'); }, IYR: function () { businessRegister('IYR'); },
-  PV: function () { businessRegister('PV'); }, PMT: function () { businessRegister('PMT'); },
-  FV: function () { businessRegister('FV'); }, CST: function () { businessRegister('CST'); },
+  N: function () { tvmKey('N'); }, IYR: function () { tvmKey('IYR'); },
+  PV: function () { tvmKey('PV'); }, PMT: function () { tvmKey('PMT'); },
+  FV: function () { tvmKey('FV'); }, CST: function () { businessRegister('CST'); },
+  NOM: nominalRate, EFF: effectiveKey,
   PRC: function () { businessRegister('PRC'); }, MAR: function () { businessRegister('MAR'); },
-  PYR: function () { businessRegister('PYR'); }, EFF: function () { businessRegister('EFF'); },
+  PYR: function () { businessRegister('PYR'); },
+  XPYR: function () { commitEntry(); result(state.displayVal * state.PYR); },
   TO_M: function () { commitEntry(); state.M = state.displayVal; saveState(state); render(); },
   RM: function () { result(state.M); },
   M_PLUS: function () { commitEntry(); state.M += state.displayVal; saveState(state); render(); },
@@ -619,6 +696,11 @@ function pressButton(button) {
   if (key !== 'SHIFT' && state.shiftArmed) {
     state.shiftArmed = false;
     saveState(state);
+  }
+  if (state.rclMode === 'RCL' && /^(N|IYR|PV|PMT|FV|PYR|EFF|CST|PRC|MAR)$/.test(key)) {
+    state.rclMode = null;
+    result(state[key]);
+    return;
   }
   handleKey(key);
   render();

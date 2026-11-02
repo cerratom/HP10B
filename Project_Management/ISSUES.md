@@ -31,6 +31,16 @@ Format (add new entries at the top of "Open" or "Resolved"):
 
 ## Resolved
 
+### I3 — BEGIN equation in spec had an inconsistent factor
+- **Date found:** 2026-11-01
+- **Status:** Resolved
+- **Severity:** medium
+- **Symptom:** The TVM prose specified `(1+i)` for BEGIN payments, while the displayed equation used a factor of two.
+- **Repro:** Compare the sentence and equation in `specs.md` §9.1.
+- **Root cause:** Transcription error in the displayed equation and zero-interest edge case.
+- **Fix:** Updated the equation and implemented the corresponding payment timing in the TVM solver.
+- **Verification:** Algebraic review; real-browser manual example remains T1.6 verification work.
+
 ### I2 — Decimal rounding lost fractional digits on carry
 - **Date found:** 2026-11-01
 - **Status:** Resolved
