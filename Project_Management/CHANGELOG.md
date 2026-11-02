@@ -15,6 +15,12 @@ Format (keep it consistent):
 
 ## Entries
 
+### 2026-11-01 — Fix body width independently of LCD contents
+
+- Set the calculator to a fixed 320px width and flex basis, matching its original minimum size; gave the page an explicit viewport width.
+- Repro from user: `98765431 × 9`. The body dimensions no longer depend on the LCD's intrinsic text width.
+- Related: T3.5, I5.
+
 ### 2026-11-01 — Preserve original calculator width
 
 - Restored the device's original `width: 100%`, 420px maximum, and 320px minimum sizing; long LCD contents remain constrained within the LCD.
