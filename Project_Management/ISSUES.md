@@ -31,6 +31,16 @@ Format (add new entries at the top of "Open" or "Resolved"):
 
 ## Resolved
 
+### I6 — y^x ignored the first value saved with INPUT
+- **Date found:** 2026-11-01
+- **Status:** Resolved
+- **Severity:** medium
+- **Symptom:** `base [INPUT] exponent [y^x]` used only the exponent as a new pending operand.
+- **Repro:** Enter 2, INPUT, enter 3, then shifted × (y^x).
+- **Root cause:** The y^x dispatch always started a pending operator and did not consume `state.other`.
+- **Fix:** The y^x handler now uses the held INPUT value as its base and current value as exponent.
+- **Verification:** Code path review and `git diff --check`; browser confirmation remains outstanding.
+
 ### I5 — Long display values widened the calculator
 - **Date found:** 2026-11-01
 - **Status:** Resolved

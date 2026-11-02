@@ -15,6 +15,11 @@ Format (keep it consistent):
 
 ## Entries
 
+### 2026-11-01 — Use INPUT pair for y^x
+
+- y^x now consumes the base held by INPUT and the current exponent.
+- Related: T1.2, T1.3, I6.
+
 ### 2026-11-01 — Finish display width and scientific formatting
 
 - Scientific notation now rounds to the active display precision; grouping separators count toward the 12-character LCD limit.
