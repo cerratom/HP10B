@@ -15,6 +15,12 @@ Format (keep it consistent):
 
 ## Entries
 
+### 2026-11-01 — Match percent handling to manual examples
+
+- Used scanned manual pp. 31–32 to correct A4/A6 key sequences and added both to the acceptance runner.
+- Percent now divides by 100 for multiply, while add/subtract percent uses a percent of the pending base; percent-change preserves and resolves the INPUT base across an addition.
+- Related: T1.2, T4.1, T4.2 (`In Progress`).
+
 ### 2026-11-01 — Add percent-of acceptance example
 
 - Corrected A2 to `200 × 25 % =` (50.00) and included it in the browser runner.

@@ -531,9 +531,9 @@ state = {
 | A1 | `10 [NOM %]`, `12 [P/YR]`, `[EFF %]` | **10.47** | Interest conversion |
 | A2 | `200 [×] 25 [%]` → then `[=]` | **50.00** | Percent of |
 | A3 | `200 [−]`, `25 [%]` → then `[=]` | **150.00** | Subtract percent |
-| A4 | `1250 [×] 7 [%]` → then `[=]` | **87.50** → **1,337.50** | Simple interest |
+| A4 | `1250 [+] 7 [%]` → then `[=]` | **87.50** → **1,337.50** | Simple interest |
 | A5 | `291.7 [INPUT] 316.8 [%CHG]` | **8.60** | Percent change |
-| A6 | `12 [5] [INPUT] 65 [18] [%CHG]` | **38.33** | Percent change |
+| A6 | `12 [×] 5 [INPUT] 65 [+] 18 [%CHG]` | **38.33** | Percent change |
 | A7 | `17 [INPUT] 29 [%CHG]` | **70.59** | Two-number %CHG |
 | A8 | `255 [CST]`, `300 [PRC]`, `[MAR]` | **15.00** | Margin |
 | A9 | `6.9 [5] [35] [=]` → `.91 [=]` | **36.92** → **40.57** | Chaining |

@@ -396,7 +396,7 @@ function pressOp(op) {
     s.displayVal = r;
   }
   s.pendOp = op; s.first = s.displayVal;
-  s.other = null; s.inputArmed = false;
+  if (s.other === null) s.inputArmed = false;
   s.label = null; s.twoVal = null;
   saveState(s); render();
 }
@@ -650,12 +650,13 @@ function clearAll() {
 }
 function percent() {
   commitEntry();
-  if (state.pendOp && state.first !== null) result(state.first * state.displayVal / 100);
+  if (state.pendOp && (state.pendOp === '+' || state.pendOp === '-') && state.first !== null) result(state.first * state.displayVal / 100);
   else if (state.other !== null) result(state.other ? state.displayVal / state.other * 100 : NaN);
   else result(state.displayVal / 100);
 }
 function percentChange() {
   commitEntry();
+  if (state.pendOp && state.first !== null) pressEquals();
   if (state.other === null || state.other === 0) { setError('Error - Func'); return; }
   result((state.displayVal - state.other) / state.other * 100);
 }
@@ -977,7 +978,9 @@ function runAcceptanceChecks() {
     { id: 'A1', run: function () { '10'.split('').forEach(key); key('IYR', true); '12'.split('').forEach(key); key('PMT', true); key('PV', true); }, expected: '10.47' },
     { id: 'A2', run: function () { '200'.split('').forEach(key); key('MUL'); '25'.split('').forEach(key); key('PCT'); key('EQUALS'); }, expected: '50.00' },
     { id: 'A3', run: function () { '200'.split('').forEach(key); key('SUB'); '25'.split('').forEach(key); key('PCT'); key('EQUALS'); }, expected: '150.00' },
+    { id: 'A4', run: function () { '1250'.split('').forEach(key); key('ADD'); key('7'); key('PCT'); var interest = dom.main.textContent; key('EQUALS'); return [interest, dom.main.textContent]; }, expected: ['87.50', '1,337.50'] },
     { id: 'A5', run: function () { '291'.split('').forEach(key); key('.'); key('7'); key('INPUT'); '316'.split('').forEach(key); key('.'); key('8'); key('PCT', true); }, expected: '8.60' },
+    { id: 'A6', run: function () { '12'.split('').forEach(key); key('MUL'); key('5'); key('INPUT'); '65'.split('').forEach(key); key('ADD'); '18'.split('').forEach(key); key('PCT', true); }, expected: '38.33' },
     { id: 'A7', run: function () { '17'.split('').forEach(key); key('INPUT'); '29'.split('').forEach(key); key('PCT', true); }, expected: '70.59' },
     { id: 'A8', run: function () { '255'.split('').forEach(key); key('CST'); '300'.split('').forEach(key); key('PRC'); key('MAR'); }, expected: '15.00' },
     { id: 'A10', run: function () { key('4'); key('ADD'); key('9'); key('MUL'); key('3'); key('EQUALS'); }, expected: '39.00' }
@@ -986,10 +989,10 @@ function runAcceptanceChecks() {
     state = defaultState(); render();
     var item = document.createElement('li');
     try {
-      check.run();
-      var actual = dom.main.textContent;
-      var passed = actual === check.expected;
-      item.textContent = check.id + ': ' + (passed ? 'PASS' : 'FAIL') + ' (expected ' + check.expected + ', got ' + actual + ')';
+      var returned = check.run();
+      var actual = returned === undefined ? dom.main.textContent : returned;
+      var passed = JSON.stringify(actual) === JSON.stringify(check.expected);
+      item.textContent = check.id + ': ' + (passed ? 'PASS' : 'FAIL') + ' (expected ' + JSON.stringify(check.expected) + ', got ' + JSON.stringify(actual) + ')';
       item.className = passed ? 'pass' : 'fail';
     } catch (error) {
       item.textContent = check.id + ': ERROR (' + error.message + ')';

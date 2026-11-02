@@ -73,8 +73,8 @@ Live task board. Update this **every** time a task changes state.
 
 | ID    | Task | Status | Notes |
 |-------|------|--------|-------|
-| T4.1  | Acceptance tests (manual worked examples) | `In Progress` | Optional runner covers A1–A3, A5, A7, A8, A10; latest cases need Edge run. |
-| T4.2  | Regression test suite | `In Progress` | Optional runner covers A1–A3, A5, A7, A8, A10; rerun after later changes. |
+| T4.1  | Acceptance tests (manual worked examples) | `In Progress` | Optional runner covers A1–A8 except A9, plus A10; added A4 and A6 require Edge run. |
+| T4.2  | Regression test suite | `In Progress` | Optional runner covers A1–A8 except A9, plus A10; rerun after later changes. |
 | T4.3  | Cross-browser verification | `In Progress` | Edge checked by user; Chrome, Firefox, and Safari remain. |
 
 ---
@@ -107,6 +107,7 @@ The calculator is considered **shipped** when:
 | 2026-11-01 | User reported all current `?test=1` checks PASS in Edge. T1.4 and T1.5 → `Verified`; T4.2 and T4.3 → `In Progress`. |
 | 2026-11-01 | Added A3 and A5 to `?test=1`; both have explicit expected results in the spec and are ready for Edge verification. |
 | 2026-11-01 | Corrected A2's sequence to multiply by 25% and added it to the browser runner. |
+| 2026-11-01 | Read the manual's percentage examples; corrected A4/A6 sequences, added both to runner, and fixed percent behavior for multiplication and INPUT-based percent change. |
 | 2026-11-01 | T1.1 → `Done`. Scientific display and grouped output now observe DISP precision and the 12-character display limit. |
 | 2026-11-01 | T1.2 and T1.3 → `Done`. Completed the INPUT-powered y^x path; all listed arithmetic and math handlers are connected. |
 | 2026-11-01 | T3.5 → `In Progress`. Adjusted badge shape/color, printed typography, and LCD digit alignment against the reference photo. |
