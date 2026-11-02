@@ -15,6 +15,13 @@ Format (keep it consistent):
 
 ## Entries
 
+### 2026-11-01 — Amortization and business percentage functions
+
+- Added AMORT cycles that display accumulated interest, principal, and remaining balance.
+- Added margin/markup calculations and CST/PRC solve paths, completed percent-of with INPUT, and connected parenthesis shift keys.
+- Updated task statuses for completed handlers; manual worked-example verification remains outstanding.
+- Related: T0.6, T1.4, T1.9, T2.1, T2.4, T2.5 (`Done`).
+
 ### 2026-11-01 — Statistics and regression functions
 
 - Implemented Σ+/Σ− accumulation, means, sample and population deviations, correlation, regression prediction, slope, weighted mean, and SWAP result toggling.

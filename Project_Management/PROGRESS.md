@@ -31,7 +31,7 @@ Live task board. Update this **every** time a task changes state.
 | T0.3  | HTML skeleton (`index.html`) | `Done` | 220 lines: 5×7 keypad grid (6th col rows 1–2), LCD display, annunciator line, HP branding. Awaiting visual QA (T3.5). |
 | T0.4  | CSS layout & exact styling (`styles.css`) | `Done` | 370 lines: black body, green/olive LCD, dark keys, yellow shift labels, orange SHIFT, responsive breakpoints. Awaiting visual QA (T3.5). |
 | T0.5  | Core state model + display rendering (`app.js`) | `Done` | State, LCD rendering, annunciators, entry cursor, and decimal rounding integrated. Manual verification remains. |
-| T0.6  | Key dispatch / input state machine | `In Progress` | Button delegation wired for entry, arithmetic, and several shifted math keys; feature handlers remain. |
+| T0.6  | Key dispatch / input state machine | `Done` | Keypad dispatch connected across implemented calculator functions; worked-example verification remains. |
 | T0.7  | Keyboard mapping | `Done` | Direct shortcuts plus `;` row/column sequence reach every physical key; documented in README. |
 | T0.8  | Persistence (`sessionStorage` save/restore) | `Done` | Restore on load, save on key mutations, clear on OFF; guarded for storage access failures. |
 
@@ -42,22 +42,22 @@ Live task board. Update this **every** time a task changes state.
 | T1.1  | Number formatting (DISP, RND, period/comma, scientific) | `In Progress` | Display settings wired; scientific and full-precision behavior still needs manual review. |
 | T1.2  | Arithmetic (chained, two-number INPUT functions) | `In Progress` | Basic operators, INPUT, percent, and percent change implemented; chaining needs manual review. |
 | T1.3  | Math functions (x², √x, 1/x, y^x, e^x, LN, n!, E) | `In Progress` | Core handlers added; manual behavior and edge cases remain. |
-| T1.4  | Business percentages (`%`, `%CHG`, `MAR`, `MU`, `CST`, `PRC`) | `Not Started` | Margin/markup pair shares a register. |
+| T1.4  | Business percentages (`%`, `%CHG`, `MAR`, `MU`, `CST`, `PRC`) | `Done` | Percent, percent change, margin, markup, and CST/PRC solve paths implemented. |
 | T1.5  | Interest conversion (`NOM%` ↔ `EFF%`) | `Done` | Both directions and P/YR implemented; manual example A1 awaits real-browser verification. |
 | T1.6  | TVM (`N`, `I/YR`, `PV`, `PMT`, `FV`, `P/YR`, `BEG/END`) | `Done` | Solve all five variables, including numerical I/YR and BEGIN timing; manual example A12 awaits real-browser verification. |
 | T1.7  | NPV / IRR (cash flows, `Nj`) | `Done` | CF0 + up to 14 groups, repeat counts 1–99, NPV and annualized IRR implemented; manual example remains to verify. |
 | T1.8  | Statistics & regression (`Σ+`/`Σ−`, means, Sx/Sy, σx/σy, r, x̂/ŷ, m, x̄w) | `Done` | Summation, inverse regression, prediction, standard deviations, correlation, and weighted mean implemented; manual verification remains. |
-| T1.9  | Amortization (`AMORT`) | `Not Started` | Periodic principal/interest breakdown. |
+| T1.9  | Amortization (`AMORT`) | `Done` | Repeated AMORT cycles report interest, principal, and balance for entered periods; verify sequence against manual. |
 
 ## Phase 2 — Memory, registers & clearing
 
 | ID    | Task | Status | Notes |
 |-------|------|--------|-------|
-| T2.1  | Business registers (N, I/YR, PV, PMT, FV, CST, PRC, MAR/MU, P/YR, EFF%) | `In Progress` | Basic store/recall handlers added; financial solve semantics remain. |
+| T2.1  | Business registers (N, I/YR, PV, PMT, FV, CST, PRC, MAR/MU, P/YR, EFF%) | `Done` | Store, recall, and applicable solve operations implemented. |
 | T2.2  | `M` register (`→M`, `RM`, `M+`) | `Done` | Three memory handlers implemented; manual verification remains. |
 | T2.3  | Numbered registers `R0`–`R.4` (`STO`/`RCL`) | `Done` | 15 slots with two-step selection implemented; manual verification remains. |
-| T2.4  | Clearing semantics (`C`, `◄`, `CLEAR ALL`, `CL Σ`) | `In Progress` | Handlers present; exact manual clearing behavior needs review. |
-| T2.5  | `SWAP` | `Not Started` | Swap last two entries / hidden result / x↔y. |
+| T2.4  | Clearing semantics (`C`, `◄`, `CLEAR ALL`, `CL Σ`) | `Done` | Clear current entry/calculation, all memory, and statistics handlers implemented. |
+| T2.5  | `SWAP` | `Done` | Swaps pending values and toggles hidden two-result outputs. |
 
 ## Phase 3 — Fidelity & polish
 
@@ -99,3 +99,4 @@ The calculator is considered **shipped** when:
 | 2026-11-01 | T1.5 and T1.6 → `Done`. Added interest conversion and all five TVM solves. |
 | 2026-11-01 | T1.7 → `Done`. Added cash-flow entry, Nj repeat counts, NPV, and IRR/YR solver. |
 | 2026-11-01 | T1.8 → `Done`. Added Σ+/Σ− accumulation and shifted statistics/regression functions. |
+| 2026-11-01 | T0.6, T1.4, T1.9, T2.1, T2.4, T2.5 → `Done`. Added business percentage solves, amortization, complete mapped dispatch, and finalized clear/SWAP handlers. |

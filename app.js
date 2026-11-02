@@ -27,6 +27,7 @@ function defaultState() {
     /* registers */
     N: 0, IYR: 0, PV: 0, PMT: 0, FV: 0,      // TVM (I/YR shared with NOM %)
     CST: 0, PRC: 0, MAR: 0,                  // MAR shared with MU
+    marginBasis: 'MAR',
     PYR: 12, EFF: 0, M: 0,
     R: [0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0],     // R0..R9, R.0..R.4
     cfs: [],                                 // [{cf, nj}] cash-flow groups
@@ -634,6 +635,7 @@ function clearAll() {
 function percent() {
   commitEntry();
   if (state.pendOp && state.first !== null) result(state.first * state.displayVal / 100);
+  else if (state.other !== null) result(state.other ? state.displayVal / state.other * 100 : NaN);
   else result(state.displayVal / 100);
 }
 function percentChange() {
@@ -648,6 +650,53 @@ function factorial() {
   var value = 1;
   for (var i = 2; i <= n; i++) value *= i;
   result(value);
+}
+function marginResult(markup) {
+  var value;
+  if (markup) value = state.CST ? (state.PRC - state.CST) / state.CST * 100 : NaN;
+  else value = state.PRC ? (state.PRC - state.CST) / state.PRC * 100 : NaN;
+  if (!Number.isFinite(value)) { setError('Error - Func'); return; }
+  state.MAR = value; state.marginBasis = markup ? 'MU' : 'MAR'; result(value);
+}
+function solveBusinessRegister(name) {
+  if (state.entering) { businessRegister(name); return; }
+  if (name === 'CST') {
+    var margin = state.MAR;
+    result(state.marginBasis === 'MU' ? state.PRC / (1 + margin / 100) : state.PRC * (1 - margin / 100));
+    state.CST = state.displayVal;
+  } else if (name === 'PRC') {
+    var markup = state.MAR;
+    result(state.marginBasis === 'MU' ? state.CST * (1 + markup / 100) : state.CST / (1 - markup / 100));
+    state.PRC = state.displayVal;
+  }
+  saveState(state);
+}
+function amortize() {
+  if (state.entering) {
+    var periods = Math.round(parseEntry(state.entry));
+    if (periods < 1 || periods > 999 || periods !== parseEntry(state.entry)) { setError('Error - Func'); return; }
+    state.amort = { periods: periods, done: 0, balance: state.PV, interest: 0, principal: 0, stage: 0 };
+  }
+  var a = state.amort;
+  if (!a || !validPeriods() || !Number.isFinite(state.PMT)) { setError('Error - Func'); return; }
+  if (a.stage === 0) {
+    a.interest = 0; a.principal = 0;
+    var rate = state.IYR / (100 * state.PYR);
+    for (var i = 0; i < a.periods; i++) {
+      var interest = a.balance * rate;
+      var principal = -state.PMT - interest;
+      a.interest += interest;
+      a.principal += principal;
+      a.balance -= principal;
+      a.done++;
+    }
+    a.stage = 1; state.label = 'Int'; result(a.interest);
+  } else if (a.stage === 1) {
+    a.stage = 2; state.label = 'Prin'; result(a.principal);
+  } else {
+    a.stage = 0; state.label = 'bAL'; result(a.balance);
+  }
+  state.amort = a; saveState(state); render();
 }
 function enterCashFlow() {
   commitEntry();
@@ -770,7 +819,7 @@ var dispatch = {
   PCT: percent, PCTCHG: percentChange, FACT: factorial,
   N: function () { tvmKey('N'); }, IYR: function () { tvmKey('IYR'); },
   PV: function () { tvmKey('PV'); }, PMT: function () { tvmKey('PMT'); },
-  FV: function () { tvmKey('FV'); }, CST: function () { businessRegister('CST'); },
+  FV: function () { tvmKey('FV'); }, CST: function () { solveBusinessRegister('CST'); },
   NOM: nominalRate, EFF: effectiveKey,
   CFJ: enterCashFlow, NJ: setCashFlowCount,
   NPV: npvResult, IRR: irrResult,
@@ -782,7 +831,11 @@ var dispatch = {
   XHAT_R: function () { statFunction('XR'); },
   YHAT_M: function () { statFunction('YM'); },
   XBARW: function () { statFunction('WEIGHTED'); },
-  PRC: function () { businessRegister('PRC'); }, MAR: function () { businessRegister('MAR'); },
+  PRC: function () { solveBusinessRegister('PRC'); }, MAR: function () {
+    if (state.entering) businessRegister('MAR'); else marginResult(false);
+  },
+  MU: function () { marginResult(true); }, AMORT: amortize,
+  LPAREN: pressParenOpen, RPAREN: pressParenClose,
   PYR: function () { businessRegister('PYR'); },
   XPYR: function () { commitEntry(); result(state.displayVal * state.PYR); },
   TO_M: function () { commitEntry(); state.M = state.displayVal; saveState(state); render(); },
