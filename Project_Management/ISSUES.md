@@ -31,7 +31,14 @@ Format (add new entries at the top of "Open" or "Resolved"):
 
 ## Resolved
 
-_(none yet)_
+### I2 — Decimal rounding lost fractional digits on carry
+- **Date found:** 2026-11-01
+- **Status:** Resolved
+- **Symptom:** Values such as 36.915 formatted incorrectly at two decimal places.
+- **Repro:** Display 36.915 with `DISP 2`.
+- **Root cause:** The prior digit carry routine concatenated the integer and fractional portions without restoring the decimal position.
+- **Fix:** `roundDigits` now rounds the combined decimal digits and splits them at the requested precision.
+- **Verification:** Code inspection and `git diff --check`; browser example verification remains part of T1.1.
 
 ---
 
