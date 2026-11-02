@@ -15,6 +15,20 @@ Format (keep it consistent):
 
 ## Entries
 
+### 2026-11-01 — Connect core display and button dispatch
+
+- Connected the serializable state and LCD renderer to the HTML display, cursor, annunciators, and keypad clicks.
+- Corrected decimal rounding carry and added dispatch for entry, arithmetic, basic shifted math, modes, and power.
+- Related: T0.5 (`Done`), T0.6 (`In Progress`).
+
+### 2026-11-01 — app.js updated: exponent parsing, sign handling, parseEntry improvements (T0.5 In Progress)
+
+- Added robust exponent entry logic to `pressDigit` and `pressE`, allowing up to three digits after the exponent marker.
+- Implemented sign toggling for both base numbers and exponents in `pressSign`.
+- Updated `parseEntry` to handle incomplete exponent strings (`4e-`) gracefully during typing, preserving display accuracy.
+- Fixed parsing of negative zero and leading zeros across entry modes.
+- Related: T0.5 (Core state model + display rendering), I1 (JSON payload size issue).
+
 ### 2026-11-01 — HTML + CSS created (T0.3, T0.4 → Done)
 
 - Created `index.html` (220 lines): full HP-10B layout — 5×7 keypad grid with 6th column

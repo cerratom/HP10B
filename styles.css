@@ -170,6 +170,21 @@ html, body {
   direction: rtl; /* right-align with proper truncation */
 }
 
+.lcd-label {
+  margin-right: auto;
+  color: var(--lcd-text);
+  font-size: 11px;
+}
+
+.lcd-cursor {
+  color: var(--lcd-text);
+  animation: lcd-blink 1s steps(1) infinite;
+}
+
+.lcd-cursor[hidden] { display: none; }
+
+@keyframes lcd-blink { 50% { opacity: 0; } }
+
 /* ===== KEYPAD ===== */
 .keypad {
   display: flex;
