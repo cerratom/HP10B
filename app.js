@@ -999,6 +999,7 @@ function pressButton(button) {
     saveState(state);
   }
   if (state.rclMode && /^(N|IYR|PV|PMT|FV|PYR|EFF|CST|PRC|MAR)$/.test(key)) {
+    if (state.msg && state.msg.kind === 'status') clearMessage();  // status ends on next keypress
     if (state.rclMode === 'RCL') {
       state.rclMode = null;
       result(state[key]);
@@ -1228,7 +1229,34 @@ function runAcceptanceChecks() {
       var irr = dom.main.textContent;                               // 21.22
       key('RCL'); key('0');                                         // RCL 0 → CF0
       return [irr, dom.main.textContent];
-    }, expected: ['21.22', '-11,000.00'] }
+    }, expected: ['21.22', '-11,000.00'] },
+    /* manual p. 9 + error appendix — divide by zero shows Error - Func;
+     * C clears the message and restores the number displayed before it */
+    { id: 'A32', run: function () {
+      enter('5'); key('DIV'); enter('0'); key('EQUALS');
+      var err = dom.main.textContent;                               // Error - Func
+      key('CLEAR');                                                 // C restores
+      return [err, dom.main.textContent];                           // the divisor (0) was last displayed
+    }, expected: ['Error - Func', '0.00'] },
+    /* manual p. 9 — C clears the current entry */
+    { id: 'A33', run: function () {
+      enter('123.45'); key('CLEAR');
+      var cleared = dom.main.textContent;                           // 0.00
+      enter('9'); key('ADD'); enter('1'); key('EQUALS');            // calculator still live
+      return [cleared, dom.main.textContent];                       // 10.00
+    }, expected: ['0.00', '10.00'] },
+    /* manual p. 10 — ⇧INPUT clears everything (ALL CLr); ⇧CLΣ clears statistics */
+    { id: 'A34', run: function () {
+      enter('360'); key('N');
+      key('INPUT', true);                                           // ⇧CLEAR ALL
+      var status = dom.main.textContent;                            // ALL CLr
+      key('RCL'); key('N');
+      var nNow = dom.main.textContent;                              // 0.00
+      enter('5'); key('SIGMA_PLUS'); enter('7'); key('SIGMA_PLUS');
+      key('TO_M', true);                                            // ⇧CLΣ
+      enter('10'); key('SIGMA_PLUS'); key('7', true);               // x̄ of only {10}
+      return [status, nNow, dom.main.textContent];                  // 10.00
+    }, expected: ['ALL CLr', '0.00', '10.00'] }
   ];
   checks.forEach(function (check) {
     state = defaultState(); render();

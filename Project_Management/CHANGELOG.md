@@ -15,6 +15,17 @@ Format (keep it consistent):
 
 ## Entries
 
+### 2026-11-02 — A1–A31 verified in all four browsers; A32–A34 added for errors/clearing
+
+- User ran the expanded suite and reported **all 31 checks PASS in Chromium, Chrome,
+  Firefox, and Edge**.
+- Promoted to `Verified`: T0.5, T0.6, T1.1, T1.3, T1.9, T2.1, T2.2, T2.3, T2.5
+  (16 verified features total).
+- Added A32–A34 covering `Error - Func` + C-restore, `C` entry clearing, and
+  `ALL CLr`/`CL Σ` (manual pp. 9–10). This exposed I13 (status message survived
+  `RCL <name>`), now fixed. Headless: 34/34; A32–A34 await browser confirmation.
+- Related: T0.5–T0.6, T1.1, T1.3, T1.9, T2.1–T2.5, T4.1–T4.2, I13.
+
 ### 2026-11-02 — K constants, amortization rewrite, DISP/RND wiring; runner expanded to 31 checks
 
 - Realigned the keypad top-right row to specs.md §5.1 (`K` primary with `SWAP` shift;

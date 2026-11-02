@@ -139,6 +139,15 @@ Format (add new entries at the top of "Open" or "Resolved"):
 - **Fix:** Realigned `index.html` (`K` primary, `SWAP` shift, `4/5/6` shifts, `×`→y^x), added `K: pressK` dispatch and `k` keyboard shortcut, and switched the Node harness to parse `SHIFT_MAP` from `index.html` so the two can't drift apart.
 - **Verification:** Headless harness 31/31 including A13/A15 (shifted stats pairs via `⇧K`) and A19–A21 (K constants); browser re-run pending as part of T4.2.
 
+### I13 — Status message not cleared by `RCL`/`STO` + register name
+- **Date found:** 2026-11-02
+- **Status:** Resolved
+- **Symptom:** After `ALL CLr` (⇧INPUT), pressing `RCL` then a register name kept printing `ALL CLr` instead of the recalled value.
+- **Repro:** `360 [N] [⇧INPUT] [RCL] [N]` showed `ALL CLr` (caught by acceptance check A34).
+- **Root cause:** The register-name branch in `pressButton` recalled/stored without going through the normal handlers that clear a status message.
+- **Fix:** The branch now calls `clearMessage()` for status messages before recalling or storing.
+- **Verification:** A34 passes (`ALL CLr` → `0.00` → x̄ `10.00` after CL Σ); 34/34 headless.
+
 ---
 
 ## Conventions
