@@ -15,6 +15,12 @@ Format (keep it consistent):
 
 ## Entries
 
+### 2026-11-01 — Record Edge acceptance checks
+
+- User reports PASS for runner cases A1, A7, A8, and A10 in Edge.
+- Marked interest conversion and exercised business percentage examples `Verified`; Edge is recorded as the first cross-browser check.
+- Related: T1.4, T1.5, T4.1–T4.3.
+
 ### 2026-11-01 — Visual QA confirmed in Edge
 
 - User confirmed that the calculator looks and functions correctly in Edge, including fixed LCD width and geometry.
