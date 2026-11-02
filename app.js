@@ -758,8 +758,8 @@ function cashFlowNpv(periodRate) {
 }
 function npvResult() {
   if (!validPeriods()) { setError('Error - P Yr'); return; }
-  if (1 + state.IYR / 100 <= 0) { setError('Error - Int'); return; }
-  var rate = Math.expm1(Math.log1p(state.IYR / 100) / state.PYR);
+  var rate = state.IYR / (100 * state.PYR);
+  if (1 + rate <= 0) { setError('Error - Int'); return; }
   result(cashFlowNpv(rate));
 }
 function solveIrrPeriod() {
@@ -788,7 +788,7 @@ function irrResult() {
   if (!validPeriods()) { setError('Error - P Yr'); return; }
   var rate = solveIrrPeriod();
   if (!Number.isFinite(rate)) { setError('Error - Soln'); return; }
-  result(100 * Math.expm1(state.PYR * Math.log1p(rate)));
+  result(100 * rate * state.PYR);           // nominal annual, per manual (IRR/YR ÷ P/YR = per period)
 }
 function accumulateStats(sign) {
   commitEntry();
@@ -813,6 +813,7 @@ function statsPair(a, b) {
   saveState(state); render();
 }
 function statFunction(kind) {
+  commitEntry();
   var s = state.stats, n = s.n;
   if (n <= 0) { setError('Error - Stat'); return; }
   var xbar = s.sx / n, ybar = s.sy / n;
@@ -967,13 +968,16 @@ function runAcceptanceChecks() {
   var list = panel.querySelector('ol');
   var original = JSON.parse(JSON.stringify(state));
   function key(name, shifted) {
-    if (/^[0-9]$/.test(name)) { pressDigit(name); return; }
-    if (name === '.') { pressDecimal(); return; }
+    if (shifted !== true) {   // strict: forEach passes the array index as 2nd arg
+      if (/^[0-9]$/.test(name)) { pressDigit(name); return; }
+      if (name === '.') { pressDecimal(); return; }
+    }
     var button = document.querySelector('#keypad button[data-key="' + name + '"]');
     if (!button) throw new Error('Missing key ' + name);
     if (shifted) state.shiftArmed = true;
     pressButton(button);
   }
+  function enter(value) { String(value).split('').forEach(key); }
   var checks = [
     { id: 'A1', run: function () { '10'.split('').forEach(key); key('IYR', true); '12'.split('').forEach(key); key('PMT', true); key('PV', true); }, expected: '10.47' },
     { id: 'A2', run: function () { '200'.split('').forEach(key); key('MUL'); '25'.split('').forEach(key); key('PCT'); key('EQUALS'); }, expected: '50.00' },
@@ -983,7 +987,19 @@ function runAcceptanceChecks() {
     { id: 'A6', run: function () { '12'.split('').forEach(key); key('MUL'); key('5'); key('INPUT'); '65'.split('').forEach(key); key('ADD'); '18'.split('').forEach(key); key('PCT', true); }, expected: '38.33' },
     { id: 'A7', run: function () { '17'.split('').forEach(key); key('INPUT'); '29'.split('').forEach(key); key('PCT', true); }, expected: '70.59' },
     { id: 'A8', run: function () { '255'.split('').forEach(key); key('CST'); '300'.split('').forEach(key); key('PRC'); key('MAR'); }, expected: '15.00' },
-    { id: 'A10', run: function () { key('4'); key('ADD'); key('9'); key('MUL'); key('3'); key('EQUALS'); }, expected: '39.00' }
+    /* manual p. 22 — chained calculation: 6.9 × 5.35 ÷ .91 (÷ shows 36.92 first) */
+    { id: 'A9', run: function () { enter('6.9'); key('MUL'); enter('5.35'); key('DIV'); var inter = dom.main.textContent; enter('.91'); key('EQUALS'); return [inter, dom.main.textContent]; }, expected: ['36.92', '40.57'] },
+    { id: 'A10', run: function () { key('4'); key('ADD'); key('9'); key('MUL'); key('3'); key('EQUALS'); }, expected: '39.00' },
+    /* manual pp. 17-18 at-a-glance — CF0 -40,000; CF1 4,700; CF2 7,000 x2; CF3 23,000 */
+    { id: 'A11', run: function () { key('INPUT', true); enter('12'); key('PMT', true); enter('40000'); key('NEGATE'); key('CFJ'); enter('4700'); key('CFJ'); enter('7000'); key('CFJ'); key('2'); key('CFJ', true); enter('23000'); key('CFJ'); key('CST', true); var irr = dom.main.textContent; enter('10'); key('IYR'); key('PRC', true); return [irr, dom.main.textContent]; }, expected: ['15.96', '622.85'] },
+    /* manual p. 13 at-a-glance — $14,000 loan, 360 months at 10% I/YR, solve PMT */
+    { id: 'A12', run: function () { enter('12'); key('PMT', true); enter('360'); key('N'); enter('10'); key('IYR'); enter('14000'); key('PV'); key('0'); key('FV'); key('PMT'); }, expected: '-122.86' },
+    /* manual p. 90 example 2 — heights/weights two-variable stats */
+    { id: 'A13', run: function () { key('TO_M', true); [[193, 90], [182, 81], [177, 83], [185, 77]].forEach(function (pair) { enter(String(pair[0])); key('INPUT'); enter(String(pair[1])); key('SIGMA_PLUS'); }); key('7', true); var xbar = dom.main.textContent; key('SWAP'); var ybar = dom.main.textContent; key('9', true); var sigx = dom.main.textContent; key('SWAP'); return [xbar, ybar, sigx, dom.main.textContent]; }, expected: ['184.25', '82.75', '5.80', '4.71'] },
+    /* manual pp. 89-90 example 1 — one-variable sail-change times: mean and Sx */
+    { id: 'A14', run: function () { key('TO_M', true); '4.5 4 2 3.25 3.5 3.75'.split(' ').forEach(function (v) { enter(v); key('SIGMA_PLUS'); }); key('7', true); var mean = dom.main.textContent; key('8', true); return [mean, dom.main.textContent]; }, expected: ['3.50', '0.85'] },
+    /* manual p. 92 forecasting example — regression b, m, r for advertising/sales data */
+    { id: 'A15', run: function () { key('TO_M', true); [[2, 1400], [1, 920], [3, 1100], [5, 2265], [5, 2890], [4, 2200]].forEach(function (pair) { enter(String(pair[0])); key('INPUT'); enter(String(pair[1])); key('SIGMA_PLUS'); }); key('0'); key('4', true); var intercept = dom.main.textContent; key('SWAP'); var slope = dom.main.textContent; key('SWAP', true); key('SWAP'); return [intercept, slope, dom.main.textContent]; }, expected: ['376.25', '425.88', '0.90'] }
   ];
   checks.forEach(function (check) {
     state = defaultState(); render();

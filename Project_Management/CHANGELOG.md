@@ -15,6 +15,16 @@ Format (keep it consistent):
 
 ## Entries
 
+### 2026-11-02 — Expand acceptance runner to A9 and A11–A15; fix NPV/IRR and stats input
+
+- Transcribed the scanned manual's worked examples (pp. 13, 17–18, 22, 89–92) and added A9,
+  A11, A12, A13, A14, A15 to the `?test=1` runner with exact manual expected values
+  (IRR/YR 15.96, NPV 622.85, PMT −122.86, σ pair 5.80/4.71, mean/Sx 3.50/0.85, b/m/r 376.25/425.88/0.90).
+- Fixed NPV/IRR to the manual's nominal convention (`r = I/YR ÷ P/YR`; D15, I9); fixed
+  `statFunction` to commit the pending entry (I10); fixed the runner's shifted-digit dispatch (I11).
+- All 15 checks pass in a headless Node harness; real-browser (Edge) confirmation still required before `Verified`.
+- Related: T1.6, T1.7, T1.8, T4.1, T4.2; D15, D16, I9–I11.
+
 ### 2026-11-01 — Record expanded Edge acceptance results
 
 - User reports all current `?test=1` cases pass in Edge, including new A2–A6 cases.

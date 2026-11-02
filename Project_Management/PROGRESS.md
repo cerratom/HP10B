@@ -44,9 +44,9 @@ Live task board. Update this **every** time a task changes state.
 | T1.3  | Math functions (x², √x, 1/x, y^x, e^x, LN, n!, E) | `Done` | Unary math, factorial, scientific exponent entry, and both y^x input paths implemented; manual examples remain to verify. |
 | T1.4  | Business percentages (`%`, `%CHG`, `MAR`, `MU`, `CST`, `PRC`) | `Verified` | Edge runner PASS for A7 (%CHG) and A8 (MAR); remaining business examples still need verification. |
 | T1.5  | Interest conversion (`NOM%` ↔ `EFF%`) | `Verified` | Edge runner PASS for A1 (NOM/EFF conversion). |
-| T1.6  | TVM (`N`, `I/YR`, `PV`, `PMT`, `FV`, `P/YR`, `BEG/END`) | `Done` | Solve all five variables, including numerical I/YR and BEGIN timing; manual example A12 awaits real-browser verification. |
-| T1.7  | NPV / IRR (cash flows, `Nj`) | `Done` | CF0 + up to 14 groups, repeat counts 1–99, NPV and annualized IRR implemented; manual example remains to verify. |
-| T1.8  | Statistics & regression (`Σ+`/`Σ−`, means, Sx/Sy, σx/σy, r, x̂/ŷ, m, x̄w) | `Done` | Summation, inverse regression, prediction, standard deviations, correlation, and weighted mean implemented; manual verification remains. |
+| T1.6  | TVM (`N`, `I/YR`, `PV`, `PMT`, `FV`, `P/YR`, `BEG/END`) | `Done` | Solve all five variables, including numerical I/YR and BEGIN timing; manual example A12 (`-122.86` loan PMT) now in the runner, awaiting browser verification. |
+| T1.7  | NPV / IRR (cash flows, `Nj`) | `Done` | CF0 + up to 14 groups, repeat counts 1–99, NPV and IRR/YR implemented on the manual's nominal convention (D15); A11 (15.96 / 622.85) passes headlessly, awaiting browser verification. |
+| T1.8  | Statistics & regression (`Σ+`/`Σ−`, means, Sx/Sy, σx/σy, r, x̂/ŷ, m, x̄w) | `Done` | Summation, inverse regression, prediction, standard deviations, correlation, and weighted mean implemented; A13–A15 pass headlessly against manual values, awaiting browser verification. |
 | T1.9  | Amortization (`AMORT`) | `Done` | Repeated AMORT cycles report interest, principal, and balance for entered periods; verify sequence against manual. |
 
 ## Phase 2 — Memory, registers & clearing
@@ -73,8 +73,8 @@ Live task board. Update this **every** time a task changes state.
 
 | ID    | Task | Status | Notes |
 |-------|------|--------|-------|
-| T4.1  | Acceptance tests (manual worked examples) | `In Progress` | User reports Edge PASS for all current runner checks A1–A8 except A9, plus A10; remaining manual examples still need coverage. |
-| T4.2  | Regression test suite | `In Progress` | All current runner cases pass in Edge; suite still needs broader feature coverage. |
+| T4.1  | Acceptance tests (manual worked examples) | `In Progress` | Runner now covers A1–A15 with values transcribed from the manual (pp. 13, 17–18, 22, 89–92). All 15 pass in a headless Node harness; Edge verification pending. |
+| T4.2  | Regression test suite | `In Progress` | All 15 runner cases pass headlessly; suite still needs broader feature coverage (registers, amortization, memory keys). |
 | T4.3  | Cross-browser verification | `In Progress` | Current runner passes in Edge; Chrome, Firefox, and Safari remain. |
 
 ---
@@ -112,3 +112,4 @@ The calculator is considered **shipped** when:
 | 2026-11-01 | T1.1 → `Done`. Scientific display and grouped output now observe DISP precision and the 12-character display limit. |
 | 2026-11-01 | T1.2 and T1.3 → `Done`. Completed the INPUT-powered y^x path; all listed arithmetic and math handlers are connected. |
 | 2026-11-01 | T3.5 → `In Progress`. Adjusted badge shape/color, printed typography, and LCD digit alignment against the reference photo. |
+| 2026-11-02 | Added A9 and A11–A15 (manual-derived) to the runner; fixed NPV/IRR nominal convention (D15, I9), stats entry commit (I10), and runner shifted-digit dispatch (I11). All 15 checks pass headlessly; browser confirmation pending. |

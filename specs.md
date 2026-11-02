@@ -343,15 +343,15 @@ state = {
   consecutive periods it repeats). The first `CFj` entered is `CF0` (time 0).
 - **`NPV`:**
   ```
-  r = (1 + I/YR/100)^(1/(P/YR)) - 1          // per-period rate
+  r = (I/YR / 100) / (P/YR)                   // per-period rate (nominal annual ÷ P/YR)
   NPV = CF0 + Σ_j CFj / (1 + r)^j            // j = cumulative period index
   ```
-  (Verify the exact discounting convention — annual vs. per-period — against the manual's
-  NPV at-a-glance page during T1.7 and record it.)
-- **`IRR/YR`:** solve for the rate `R` such that `NPV(R) = 0`, then report the annual
-  rate. Use a robust root-finder (bisection + Newton) with sign-change bracketing;
-  handle the case of multiple roots by reporting the smallest positive root consistent
-  with the manual's examples.
+  (Convention confirmed against the manual's IRR/YR-and-NPV at-a-glance pages:
+  `10 [I/YR]` with `P/YR = 12` discounts at 10/12 % per month — example resolves to
+  NPV **622.85**. See D15.)
+- **`IRR/YR`:** solve for the per-period rate `r` such that `NPV(r) = 0`, then report
+  `IRR/YR = r × P/YR` (nominal annual). The manual verifies this: IRR/YR 15.96 with
+  `÷ 12 =` giving 1.33 per month.
 - **`Nj`:** repeats the preceding `CFj` for `Nj` consecutive periods (e.g. `7000 [CFj]`
   then `2 [Nj]` = 7000 in periods 2 and 3).
 
@@ -536,11 +536,13 @@ state = {
 | A6 | `12 [×] 5 [INPUT] 65 [+] 18 [%CHG]` | **38.33** | Percent change |
 | A7 | `17 [INPUT] 29 [%CHG]` | **70.59** | Two-number %CHG |
 | A8 | `255 [CST]`, `300 [PRC]`, `[MAR]` | **15.00** | Margin |
-| A9 | `6.9 [5] [35] [=]` → `.91 [=]` | **36.92** → **40.57** | Chaining |
+| A9 | `6.9 [×] 5.35 [÷]` → `.91 [=]` | **36.92** → **40.57** | Chaining (manual p. 22) |
 | A10 | `4 [+ 9 [× 3 [=]` | **39.00** | Chaining/precedence |
-| A11 | `CLEAR ALL`, `12 [P/YR]`, `40000 [+/−] [CFj]`, `4700 [CFj]`, `7000 [CFj]`, `2 [Nj]`, then `[IRR/YR]` and `[NPV]` | values from manual `hi-13` | NPV/IRR |
-| A12 | TVM solve (e.g. set N, I/YR, PV, PMT → solve FV) | value from a manual TVM example | TVM |
-| A13 | Stats: enter a small two-variable data set via `Σ+`, then `x̄`, `Sx`, `r` | values from a manual stats example | Statistics |
+| A11 | `CLEAR ALL`, `12 [P/YR]`, `40000 [+/−] [CFj]`, `4700 [CFj]`, `7000 [CFj]`, `2 [Nj]`, `23000 [CFj]`, `[IRR/YR]`, `10 [I/YR]`, `[NPV]` | **15.96** (IRR/YR), **622.85** (NPV) | NPV/IRR (manual pp. 17–18) |
+| A12 | `12 [P/YR]`, `360 [N]`, `10 [I/YR]`, `14000 [PV]`, `0 [FV]`, `[PMT]` | **−122.86** | TVM (manual p. 13) |
+| A13 | `CL Σ`, `193 [INPUT] 90 [Σ+]`, `182 [INPUT] 81 [Σ+]`, `177 [INPUT] 83 [Σ+]`, `185 [INPUT] 77 [Σ+]`, `⇧x̲ȳ`, `SWAP`, `⇧σxσy`, `SWAP` | **184.25**, **82.75**, **5.80**, **4.71** | Statistics (manual p. 90) |
+| A14 | `CL Σ`, `4.5 [Σ+]`, `4 [Σ+]`, `2 [Σ+]`, `3.25 [Σ+]`, `3.5 [Σ+]`, `3.75 [Σ+]`, `⇧x̄`, `⇧SxSy` | **3.50**, **0.85** | Statistics (manual pp. 89–90) |
+| A15 | `CL Σ`, `2 [INPUT] 1400 [Σ+]`, `1 [INPUT] 920 [Σ+]`, `3 [INPUT] 1100 [Σ+]`, `5 [INPUT] 2265 [Σ+]`, `5 [INPUT] 2890 [Σ+]`, `4 [INPUT] 2200 [Σ+]`, `0 [⇧ŷm]`, `SWAP`, `⇧x̂r`, `SWAP` | **376.25** (b), **425.88** (m), **0.90** (r) | Regression (manual p. 92) |
 
 > **Note:** A2–A4 percent sequences are as best transcribed; **verify the exact key
 > order against the manual** during T1.4 and correct the table if the manual differs.
@@ -687,7 +689,8 @@ browsers.
 
 1. Default display format on power-on (T1.1).
 2. Exact percent (`%`) key-order semantics for A2–A4 (T1.4).
-3. NPV/IRR discounting convention (annual vs. per-period) (T1.7).
+3. NPV/IRR discounting convention (annual vs. per-period) (T1.7). — **Resolved:** nominal
+   convention, `r = I/YR ÷ P/YR` per period; `IRR/YR = r × P/YR` (D15; manual pp. 17–18).
 4. Exact argument each statistics function takes (current entry vs. mean) (T1.8).
 5. Amortization input/output order (T1.9).
 6. Full error/status message list and exact wording (T3.2).

@@ -152,3 +152,26 @@ Format:
 - **Status:** Accepted pending manual review
 - **Decision:** Use current display as y and compute x̂ = (y − intercept) / slope; use current display as x for ŷ = intercept + slope × x.
 - **Context / why:** The previous spec duplicated the ŷ equation under x̂. Inverse regression follows the named function and avoids returning the same prediction for both keys. Confirm the manual's exact input convention during acceptance verification.
+
+## D15 — NPV/IRR use the nominal annual convention
+- **Date:** 2026-11-02
+- **Status:** Accepted
+- **Decision:** `NPV` discounts cash flows at the per-period rate `r = (I/YR/100) / (P/YR)`;
+  `IRR/YR` reports the solved per-period root multiplied by `P/YR` (nominal annual).
+- **Context / why:** The scanned manual's IRR/YR-and-NPV at-a-glance pages (pp. 17–18) are
+  definitive: with `P/YR = 12`, `10 [I/YR]` produces NPV **622.85** (i.e. 10/12 % per month),
+  IRR/YR **15.96** with `÷ 12 =` giving **1.33** per month. The previous implementation used
+  an effective-annual convention (15.96 → 17.18, 622.85 → 668.45), which reproduced neither.
+- **Alternatives rejected:** Effective-annual discounting — rejected because no worked
+  manual example matches it; it also contradicts the manual's own `÷ 12 =` monthly-IRR step.
+- **Also confirmed here:** D14's ŷ/x̂ convention is validated by the p. 92 forecasting
+  example (`0 [⇧ŷm]` → b, `SWAP` → m, `⇧x̂r` `SWAP` → r = 0.90) — D14 now fully Accepted.
+
+## D16 — Split statistics acceptance coverage into A13–A15
+- **Date:** 2026-11-02
+- **Status:** Accepted
+- **Decision:** Replace the placeholder A13 with three manual-derived checks: A13 two-variable
+  means/σ (p. 90), A14 one-variable mean/Sx (pp. 89–90), A15 regression b/m/r (p. 92).
+- **Context / why:** The spec's single A13 row mixed x̄, Sx, and r, but no single manual
+  worked example covers all three; each chosen example is transcribed exactly, keeping
+  "expected values come from the manual" (D8) intact.
