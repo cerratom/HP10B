@@ -15,6 +15,11 @@ Format (keep it consistent):
 
 ## Entries
 
+### 2026-11-01 — Extend acceptance runner with percent examples
+
+- Added A3 subtract-percent and A5 percent-change examples to the browser runner.
+- Related: T4.1, T4.2 (`In Progress`).
+
 ### 2026-11-01 — Record Edge acceptance checks
 
 - User reports PASS for runner cases A1, A7, A8, and A10 in Edge.

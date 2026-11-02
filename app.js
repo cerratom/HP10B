@@ -957,6 +957,48 @@ function handleKeyboard(event) {
   else handleKey(buttonKey);
 }
 
+function runAcceptanceChecks() {
+  var panel = document.createElement('section');
+  panel.id = 'test-results';
+  panel.setAttribute('aria-live', 'polite');
+  panel.innerHTML = '<strong>Acceptance checks</strong><ol></ol>';
+  document.getElementById('device').appendChild(panel);
+  var list = panel.querySelector('ol');
+  var original = JSON.parse(JSON.stringify(state));
+  function key(name, shifted) {
+    if (/^[0-9]$/.test(name)) { pressDigit(name); return; }
+    if (name === '.') { pressDecimal(); return; }
+    var button = document.querySelector('#keypad button[data-key="' + name + '"]');
+    if (!button) throw new Error('Missing key ' + name);
+    if (shifted) state.shiftArmed = true;
+    pressButton(button);
+  }
+  var checks = [
+    { id: 'A1', run: function () { '10'.split('').forEach(key); key('IYR', true); '12'.split('').forEach(key); key('PMT', true); key('PV', true); }, expected: '10.47' },
+    { id: 'A3', run: function () { '200'.split('').forEach(key); key('SUB'); '25'.split('').forEach(key); key('PCT'); key('EQUALS'); }, expected: '150.00' },
+    { id: 'A5', run: function () { '291'.split('').forEach(key); key('.'); key('7'); key('INPUT'); '316'.split('').forEach(key); key('.'); key('8'); key('PCT', true); }, expected: '8.60' },
+    { id: 'A7', run: function () { '17'.split('').forEach(key); key('INPUT'); '29'.split('').forEach(key); key('PCT', true); }, expected: '70.59' },
+    { id: 'A8', run: function () { '255'.split('').forEach(key); key('CST'); '300'.split('').forEach(key); key('PRC'); key('MAR'); }, expected: '15.00' },
+    { id: 'A10', run: function () { key('4'); key('ADD'); key('9'); key('MUL'); key('3'); key('EQUALS'); }, expected: '39.00' }
+  ];
+  checks.forEach(function (check) {
+    state = defaultState(); render();
+    var item = document.createElement('li');
+    try {
+      check.run();
+      var actual = dom.main.textContent;
+      var passed = actual === check.expected;
+      item.textContent = check.id + ': ' + (passed ? 'PASS' : 'FAIL') + ' (expected ' + check.expected + ', got ' + actual + ')';
+      item.className = passed ? 'pass' : 'fail';
+    } catch (error) {
+      item.textContent = check.id + ': ERROR (' + error.message + ')';
+      item.className = 'fail';
+    }
+    list.appendChild(item);
+  });
+  state = original; saveState(state); render();
+}
+
 function init() {
   dom.main = document.getElementById('lcd-text');
   dom.annShift = document.getElementById('ann-shift');
@@ -973,6 +1015,7 @@ function init() {
   });
   document.addEventListener('keydown', handleKeyboard);
   render();
+  if (new URLSearchParams(window.location.search).has('test')) runAcceptanceChecks();
 }
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
