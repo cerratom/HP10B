@@ -208,3 +208,15 @@ Format:
   stores X into that register.
 - **Verified by:** A27 (STO 0 replaces CF0, `⇧IRR` 12.49 auto-stored, `RCL IYR` 12.49)
   and A31 (`RCL 0` → −11,000.00) headlessly.
+
+## D20 — Owner-authorized release pushes; single `main` branch at v1.0.0
+- **Date:** 2026-11-02
+- **Status:** Accepted
+- **Decision:** For the v1.0.0 release the owner explicitly authorized pushing to
+  `origin` (gh CLI device auth), enabling GitHub Pages, merging
+  `t4-expand-acceptance-tests` into `main` (fast-forward), tagging `v1.0.0`, and
+  deleting the merged branch. The repo keeps exactly one branch, `main`.
+- **Context / why:** The standing rule is "never push to origin; the human pushes"
+  (AGENTS.md → Git Flow). This was a one-time explicit override by the owner, not a
+  rule change — future work should still start a new feature branch and leave
+  pushing/merging to owner authorization.

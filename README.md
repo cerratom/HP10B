@@ -14,11 +14,13 @@ A faithful, web-based recreation of the **HP-10B Business/Financial Calculator**
 
 ## Status
 
-This repository is currently in the **specification** phase. The build (the actual
-`index.html` / `styles.css` / `app.js`) is a later phase driven by the spec.
+**Shipped — `v1.0.0`.** The full HP-10B feature set is implemented and verified: all
+34 acceptance checks (`index.html?test=1`) pass in Chromium, Chrome, Firefox, Edge
+and Safari. Live at **https://cerratom.github.io/HP10B/** (GitHub Pages, served from `main`).
 
 - 🤖 **[AGENTS.md](AGENTS.md)** — the entry point for the agent that builds the app.
-- 📄 **[specs.md](specs.md)** — the authoritative, detailed specification (the main deliverable).
+- 📄 **[specs.md](specs.md)** — the authoritative, detailed specification.
+- 🧯 **[Project_Management/PROGRESS.md → "Stopping point"]** — where the project paused and how to resume.
 
 ### Project management (in `Project_Management/`)
 
@@ -27,7 +29,7 @@ This repository is currently in the **specification** phase. The build (the actu
 - 🧭 **[DECISIONS.md](Project_Management/DECISIONS.md)** — decision log (why we made each choice).
 - 🐞 **[ISSUES.md](Project_Management/ISSUES.md)** — issues/bugs log and how they were fixed.
 
-## How to run (once built)
+## How to run
 
 No build step. Just open the file:
 
@@ -47,14 +49,21 @@ python3 -m http.server 8000
 
 Digits, decimal point, `+ - * /`, `Enter`, `Backspace`, `Escape`, and `%` work directly.
 Press `Shift` to arm the yellow function of the next key. Shortcuts include `n` (N),
-`i` (I/YR), `p` (PV), `m` (PMT), `f` (FV), `v` (INPUT), `g` (K), `e` (eˣ),
+`i` (I/YR), `p` (PV), `m` (PMT), `f` (FV), `v` (INPUT), `k` (K), `g` (SWAP), `e` (eˣ),
 `l` (LN), `s` (√x), and `q` (x²).
 
 Every physical key is reachable by typing `;` followed by its row and column.
 For example, `;11` presses N, `;16` presses Σ+, and `;61` presses SHIFT.
 Rows count from the top and columns from the left. Use `Shift` or `;61` before
-the sequence to access the yellow function. Some financial functions are still
-being implemented.
+the sequence to access the yellow function.
+
+## Testing
+
+- **In-browser acceptance suite:** open `index.html?test=1` — runs 34 checks (A1–A34)
+  whose expected values are transcribed from the HP-10B manual, and prints PASS/FAIL.
+- **Headless regression (Node, no browser):** `node tests/harness.js` — expects
+  `--- 34/34 pass`; it derives its key/shift map from `index.html`.
+- **Debug aid:** `node tests/debug.js` dumps internal state after targeted sequences.
 
 ## Source of truth
 
@@ -69,13 +78,16 @@ H10B_Calculator/
 ├── README.md           # this file — overview + how to run
 ├── AGENTS.md           # entry point for the building agent
 ├── specs.md            # ← authoritative specification
-├── index.html          # entry point (build phase)
-├── styles.css          # exact HP-10B look (build phase)
-├── app.js              # state machine + engines + keyboard (build phase)
+├── index.html          # entry point
+├── styles.css          # exact HP-10B look
+├── app.js              # state machine + engines + keyboard
 ├── .gitignore
 ├── Assets/             # source of truth (photo + manual)
 │   ├── HP-10B.jpg
 │   └── User_Manual.pdf
+├── tests/              # dev-only test tooling (not part of the app)
+│   ├── harness.js      # headless 34-check regression suite
+│   └── debug.js        # instrumented state dumper
 └── Project_Management/ # record-keeping
     ├── PROGRESS.md     # task board
     ├── CHANGELOG.md    # append-only history

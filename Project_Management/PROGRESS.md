@@ -89,6 +89,46 @@ The calculator is considered **shipped** when:
 - Every feature with a manual worked-example is `Verified`.
 - `T4.2` (regression suite) passes in all target browsers (`T4.3`).
 
+## Stopping point — 2026-11-02 (all planned work complete; resume here)
+
+**Where we stopped**
+
+- **Shipped `v1.0.0`.** All 34 acceptance checks (A1–A34, `?test=1`) pass in Chromium,
+  Chrome, Firefox, Edge, and Safari; the "Definition of shipped" above is met.
+- Repo state: single branch **`main`** — local and `origin` both at `98e0ec2`; tag
+  `v1.0.0` pushed. GitHub Pages serves `main`: **https://cerratom.github.io/HP10B/**.
+- Board: 23 `Verified`, 8 `Done`, zero `In Progress` / `Blocked` / `Not Started`.
+- Pushes to `origin` were performed at the owner's explicit request (D20). For any
+  future work, `AGENTS.md → Git Flow` applies again by default: new feature branch,
+  merge to `main` only when verified; pushing stays owner-authorized.
+
+**How to test (both durable now)**
+
+- Browser: open `index.html?test=1` (or add `?test=1` to the Pages URL).
+- Headless regression: `node tests/harness.js` — expect `--- 34/34 pass`. It parses its
+  key/shift map from `index.html`, so keypad labels and tests cannot drift apart.
+- Instrumented state dumps: `node tests/debug.js` (edit the scenario block at its end).
+
+**Manual-referencing notes (for any future expected-value work)**
+
+- `Assets/User_Manual.pdf` is scanned (no text layer). Render pages with
+  `pdftoppm -png -r 120 Assets/User_Manual.pdf /tmp/opencode/manual_pages/page`.
+- PDF page *N* shows printed pages **2N−4** and **2N−3**. All acceptance values in
+  A1–A34 were transcribed from printed pp. 9–10, 13–15, 17–18, 22, 26–29, 34–37,
+  78–84, 89–92.
+
+**Optional threads, if work ever resumes** (none required for `v1.0.0`)
+
+1. Promote the remaining `Done` tasks — T0.7 keyboard, T0.8 persistence, T3.1
+   annunciators, T3.3 cursor, T3.4 power — with DOM-level runner assertions
+   (synthetic key events, sessionStorage round-trip, annunciator classes, cursor
+   visibility). These have no manual worked-example, so they gate nothing.
+2. A focused visual check of the realigned top-right keypad row (I12) against
+   `Assets/HP-10B.jpg` — the functional suite passes since the realignment, but an
+   explicit visual sign-off of that row was never separately logged.
+3. Re-read `specs.md → Appendix B` (open items): all were resolved through D1–D19,
+   but the appendix text may still list them as open.
+
 ## Change log of this board
 
 | Date | Change |
@@ -119,3 +159,4 @@ The calculator is considered **shipped** when:
 | 2026-11-02 | Keypad realigned to specs.md §5.1 (I12); K constants, amortization `PEr`/Int/Prin/bAL cycle (D17), DISP-`=` full-precision view, STO/RCL extensions (D19) implemented. Runner expanded to A1–A31; 31/31 headless, browser confirmation pending. |
 | 2026-11-02 | User reports all 31 `?test=1` checks PASS in Chromium, Chrome, Firefox, and Edge. T0.5, T0.6, T1.1, T1.3, T1.9, T2.1–T2.3, T2.5 → `Verified`. Added A32–A34 (errors/clearing) and fixed I13; 34/34 headless, browser pending. |
 | 2026-11-02 | Deployed to GitHub Pages (feature branch) for Safari testing; user reports **34/34 PASS in Chromium, Chrome, Firefox, Edge and Safari**. T2.4, T3.2, T4.2, T4.3 → `Verified`; T4.1 `Done`. Shipped definition met; merged `t4-expand-acceptance-tests` → `main`. |
+| 2026-11-02 | Merged branch deleted (local + GitHub); `v1.0.0` tagged; harnesses moved to `tests/`. Stopping-point notes added above — project paused at shipped state. |

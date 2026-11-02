@@ -15,6 +15,17 @@ Format (keep it consistent):
 
 ## Entries
 
+### 2026-11-02 — Project close: paused at `v1.0.0`; harnesses checked into `tests/`
+
+- Moved the regression harness from a scratch directory into `tests/harness.js`
+  (now path-relative: `node tests/harness.js` → 34/34) and added `tests/debug.js`
+  for instrumented state dumps.
+- Added a "Stopping point" section to `PROGRESS.md` — repo state, how to test,
+  manual-referencing notes, and optional unstarted threads for a future resume.
+- Housekeeping done: `t4-expand-acceptance-tests` deleted locally and on GitHub;
+  only `main` (with tag `v1.0.0`) remains, Pages serving `main`.
+- Related: T4.2.
+
 ### 2026-11-02 — v1.0.0 — Shipped: 34/34 acceptance checks pass in five browsers
 
 - Deployed to GitHub Pages (https://cerratom.github.io/HP10B/, initially from the
