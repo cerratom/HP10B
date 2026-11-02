@@ -394,11 +394,11 @@ state = {
   r   = (nΣxy - ΣxΣy) / sqrt( (nΣx² - (Σx)²)(nΣy² - (Σy)²) )
   m   = (nΣxy - ΣxΣy) / (nΣx² - (Σx)²)        // slope
   a   = ȳ - m*x̄                              // intercept
-  x̂   = a + m*x                               // (x from current entry / x̄)
-  ŷ   = a + m*x̄
+  x̂   = (y - a) / m                           // inverse regression, y from current entry
+  ŷ   = a + m*x                                // x from current entry
   ```
   (Confirm the exact argument each function takes — current entry vs. mean — against the
-  manual during T1.8 and record it.)
+  manual during acceptance review.)
 
 ### 9.6 Amortization (`AMORT`)
 

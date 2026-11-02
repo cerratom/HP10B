@@ -46,7 +46,7 @@ Live task board. Update this **every** time a task changes state.
 | T1.5  | Interest conversion (`NOM%` ↔ `EFF%`) | `Done` | Both directions and P/YR implemented; manual example A1 awaits real-browser verification. |
 | T1.6  | TVM (`N`, `I/YR`, `PV`, `PMT`, `FV`, `P/YR`, `BEG/END`) | `Done` | Solve all five variables, including numerical I/YR and BEGIN timing; manual example A12 awaits real-browser verification. |
 | T1.7  | NPV / IRR (cash flows, `Nj`) | `Done` | CF0 + up to 14 groups, repeat counts 1–99, NPV and annualized IRR implemented; manual example remains to verify. |
-| T1.8  | Statistics & regression (`Σ+`/`Σ−`, means, Sx/Sy, σx/σy, r, x̂/ŷ, m, x̄w) | `Not Started` | Summation registers n,Σx,Σy,Σx²,Σy²,Σxy. |
+| T1.8  | Statistics & regression (`Σ+`/`Σ−`, means, Sx/Sy, σx/σy, r, x̂/ŷ, m, x̄w) | `Done` | Summation, inverse regression, prediction, standard deviations, correlation, and weighted mean implemented; manual verification remains. |
 | T1.9  | Amortization (`AMORT`) | `Not Started` | Periodic principal/interest breakdown. |
 
 ## Phase 2 — Memory, registers & clearing
@@ -98,3 +98,4 @@ The calculator is considered **shipped** when:
 | 2026-11-01 | T1.1–T1.3, T2.1, T2.4 → `In Progress`; T2.2 and T2.3 → `Done` as their handlers were wired. |
 | 2026-11-01 | T1.5 and T1.6 → `Done`. Added interest conversion and all five TVM solves. |
 | 2026-11-01 | T1.7 → `Done`. Added cash-flow entry, Nj repeat counts, NPV, and IRR/YR solver. |
+| 2026-11-01 | T1.8 → `Done`. Added Σ+/Σ− accumulation and shifted statistics/regression functions. |

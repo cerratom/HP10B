@@ -15,6 +15,12 @@ Format (keep it consistent):
 
 ## Entries
 
+### 2026-11-01 — Statistics and regression functions
+
+- Implemented Σ+/Σ− accumulation, means, sample and population deviations, correlation, regression prediction, slope, weighted mean, and SWAP result toggling.
+- Clarified inverse regression formula for x̂ in the spec; key argument behavior still needs manual verification.
+- Related: T1.8 (`Done`), D14.
+
 ### 2026-11-01 — NPV and IRR cash flow functions
 
 - Added CFj cash-flow groups, Nj repetition counts, NPV per-period discounting, and an IRR root finder.

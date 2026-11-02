@@ -146,3 +146,9 @@ Format:
 - **Status:** Accepted
 - **Decision:** Multiply the payment annuity factor by `(1+i)` in BEGIN mode; keep PV and EFF in separate registers.
 - **Context / why:** Payments at the beginning of each period accrue one additional period of interest. The spec prose stated this but its displayed equation accidentally doubled the payment factor. The state model already defines EFF independently from PV; the scanned manual needs visual confirmation during acceptance review.
+
+## D14 — Interpret x̂ as inverse regression
+- **Date:** 2026-11-01
+- **Status:** Accepted pending manual review
+- **Decision:** Use current display as y and compute x̂ = (y − intercept) / slope; use current display as x for ŷ = intercept + slope × x.
+- **Context / why:** The previous spec duplicated the ŷ equation under x̂. Inverse regression follows the named function and avoids returning the same prediction for both keys. Confirm the manual's exact input convention during acceptance verification.

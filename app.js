@@ -521,6 +521,7 @@ function pressSwap() {
   commitEntry();
   if (s.twoVal) {                              // toggle x̄↔ȳ, Sx↔Sy, x̂↔r, ŷ↔m …
     s.twoVal.shown = (s.twoVal.shown === 'a') ? 'b' : 'a';
+    s.displayVal = s.twoVal[s.twoVal.shown];
   } else if (s.pendOp && s.first !== null) {   // swap last two numbers entered
     var t = s.first; s.first = s.displayVal; s.displayVal = t;
   } else if (s.other !== null) {               // swap the INPUT pair
@@ -712,6 +713,53 @@ function irrResult() {
   if (!Number.isFinite(rate)) { setError('Error - Func'); return; }
   result(100 * Math.expm1(state.PYR * Math.log1p(rate)));
 }
+function accumulateStats(sign) {
+  commitEntry();
+  var x = state.other === null ? state.displayVal : state.other;
+  var y = state.other === null ? 0 : state.displayVal;
+  var st = state.stats;
+  st.n += sign;
+  st.sx += sign * x;
+  st.sx2 += sign * x * x;
+  st.sy += sign * y;
+  st.sy2 += sign * y * y;
+  st.sxy += sign * x * y;
+  if (Math.abs(st.n) < 1e-12) state.stats = defaultState().stats;
+  state.other = null; state.inputArmed = false;
+  state.label = null; saveState(state); render();
+}
+function statsPair(a, b) {
+  if (!Number.isFinite(a) || !Number.isFinite(b)) { setError('Error - Func'); return; }
+  state.twoVal = { a: a, b: b, shown: 'a' };
+  result(a);
+  state.twoVal = { a: a, b: b, shown: 'a' };
+  saveState(state); render();
+}
+function statFunction(kind) {
+  var s = state.stats, n = s.n;
+  if (n <= 0) { setError('Error - Func'); return; }
+  var xbar = s.sx / n, ybar = s.sy / n;
+  var dx = s.sx2 - s.sx * s.sx / n;
+  var dy = s.sy2 - s.sy * s.sy / n;
+  var cross = s.sxy - s.sx * s.sy / n;
+  var slopeDen = n * s.sx2 - s.sx * s.sx;
+  var slope = slopeDen ? (n * s.sxy - s.sx * s.sy) / slopeDen : NaN;
+  var corrDen = Math.sqrt(Math.max(0, dx * dy));
+  var corr = corrDen ? cross / corrDen : NaN;
+  var x = state.displayVal;
+  if (kind === 'MEAN') { statsPair(xbar, ybar); return; }
+  if (kind === 'SAMPLE') {
+    if (n <= 1) { setError('Error - Func'); return; }
+    statsPair(Math.sqrt(Math.max(0, dx / (n - 1))), Math.sqrt(Math.max(0, dy / (n - 1)))); return;
+  }
+  if (kind === 'POP') { statsPair(Math.sqrt(Math.max(0, dx / n)), Math.sqrt(Math.max(0, dy / n))); return; }
+  if (kind === 'XR') { statsPair(slope ? (x - (ybar - slope * xbar)) / slope : NaN, corr); return; }
+  if (kind === 'YM') { statsPair(ybar + slope * (x - xbar), slope); return; }
+  if (kind === 'WEIGHTED') {
+    var weighted = s.sy ? s.sxy / s.sy : NaN;
+    result(weighted); return;
+  }
+}
 var dispatch = {
   DECIMAL: pressDecimal, NEGATE: pressSign, SCI_E: pressE,
   BACK: pressBackspace, CLEAR: pressC, INPUT: pressInput,
@@ -726,6 +774,14 @@ var dispatch = {
   NOM: nominalRate, EFF: effectiveKey,
   CFJ: enterCashFlow, NJ: setCashFlowCount,
   NPV: npvResult, IRR: irrResult,
+  SIGMA_PLUS: function () { accumulateStats(1); },
+  SIGMA_MINUS: function () { accumulateStats(-1); },
+  XBAR_YBAR: function () { statFunction('MEAN'); },
+  SX_SY: function () { statFunction('SAMPLE'); },
+  SIGMAX_SIGMAY: function () { statFunction('POP'); },
+  XHAT_R: function () { statFunction('XR'); },
+  YHAT_M: function () { statFunction('YM'); },
+  XBARW: function () { statFunction('WEIGHTED'); },
   PRC: function () { businessRegister('PRC'); }, MAR: function () { businessRegister('MAR'); },
   PYR: function () { businessRegister('PYR'); },
   XPYR: function () { commitEntry(); result(state.displayVal * state.PYR); },
