@@ -130,6 +130,15 @@ Format (add new entries at the top of "Open" or "Resolved"):
 - **Fix:** `roundDigits` now rounds the combined decimal digits and splits them at the requested precision.
 - **Verification:** Code inspection and `git diff --check`; browser example verification remains part of T1.1.
 
+### I12 — Keypad top-right shifts diverged from specs.md §5.1
+- **Date found:** 2026-11-02
+- **Status:** Resolved
+- **Symptom:** The keypad rendered `ŷ,m` on `⇧4`, `x̂,r` on `⇧SWAP`, and had a bare `SWAP` key with no `K`; `K` constants were unreachable and dispatch names (`XHAT_R`/`YHAT_M`/`XBARW`) were never produced by any key.
+- **Repro:** `?test=1` A13/A15 could not reach x̂,r / ŷ,m / x̄w with the spec's key names.
+- **Root cause:** `index.html` shipped an early draft key map; specs.md §5.1 defines shifts `4`→x̂,r, `5`→ŷ,m, `6`→x̄w, `K`→SWAP.
+- **Fix:** Realigned `index.html` (`K` primary, `SWAP` shift, `4/5/6` shifts, `×`→y^x), added `K: pressK` dispatch and `k` keyboard shortcut, and switched the Node harness to parse `SHIFT_MAP` from `index.html` so the two can't drift apart.
+- **Verification:** Headless harness 31/31 including A13/A15 (shifted stats pairs via `⇧K`) and A19–A21 (K constants); browser re-run pending as part of T4.2.
+
 ---
 
 ## Conventions

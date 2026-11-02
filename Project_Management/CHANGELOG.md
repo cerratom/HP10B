@@ -15,6 +15,21 @@ Format (keep it consistent):
 
 ## Entries
 
+### 2026-11-02 — K constants, amortization rewrite, DISP/RND wiring; runner expanded to 31 checks
+
+- Realigned the keypad top-right row to specs.md §5.1 (`K` primary with `SWAP` shift;
+  `⇧4`→x̂,r, `⇧5`→ŷ,m, `⇧6`→x̄w, `⇧×`→y^x) and implemented `K` constants per manual
+  pp. 35–37, including `n [%] K` percent constants (D18, I12).
+- Rewrote `amortize()`: INPUT pair → `PEr start- end` range, bare number → `1..n`,
+  `=` cycles Int → Prin → bAL; per-period interest rounded to cents to reproduce the
+  manual's printed schedule (D17). Wired full-precision view (`⇧DISP` `=`), `⇧RCL`-style
+  `⇧STO <name>`, `STO <op>` register arithmetic, R0–R14 cash-flow aliasing, and NPV→PV /
+  IRR→I/YR storage (D19).
+- Acceptance runner expanded from 15 to 31 checks (A16–A31) transcribed from manual
+  pp. 14–15, 26–29, 34–37, 78–84; the Node harness now parses its shift map from
+  `index.html`. Headless result: 31/31; browser confirmation pending.
+- Related: T1.1, T1.3, T1.9, T2.1–T2.3, T2.5, T4.1–T4.2, D17–D19, I12.
+
 ### 2026-11-02 — Cross-browser verification: Chromium, Chrome, Firefox, Edge
 
 - User ran `index.html?test=1` and reported all checks PASS in **Chromium**, **Chrome**,

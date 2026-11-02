@@ -175,3 +175,36 @@ Format:
 - **Context / why:** The spec's single A13 row mixed x̄, Sx, and r, but no single manual
   worked example covers all three; each chosen example is transcribed exactly, keeping
   "expected values come from the manual" (D8) intact.
+
+## D17 — Amortization rounds each period's interest to cents
+- **Date:** 2026-11-02
+- **Status:** Accepted
+- **Decision:** In `amortize()`, each period's interest is rounded to the current
+  display decimals (2 by default) before principal and balance are derived.
+- **Context / why:** Exact binary arithmetic on the p. 13 loan gives bAL = 13,865.82
+  after payment 20, but the manual prints 13,865.83. Simulating cent-rounded
+  interest reproduces every printed figure in the p. 15 examples (A23 and A24),
+  matching how a 2-digit BCD register machine accumulates the amortization schedule.
+- **Verified by:** A23 (`PEr 20- 20` → Int −115.61, Prin −7.25, bAL 13,865.83) and
+  A24 (`PEr 1- 12` → Int −1,396.50, Prin −77.82, bAL 13,922.18) headlessly.
+
+## D18 — K constants follow manual pp. 35–37 semantics
+- **Date:** 2026-11-02
+- **Status:** Accepted
+- **Decision:** `K` stores the pending operator + current operand (or a just-computed
+  `%` result as a "±n%" constant); `=` chains the constant, entering a new number then
+  `=` applies it, and a new binary operator cancels it. The top-right keypad key is
+  `K` (primary) with `SWAP` as its shift, per specs.md §5.1 — the previous build had
+  these inverted and `K` unimplemented (logged as I12).
+- **Verified by:** A19 (`5 [+] 2 [K]` → +2), A20 (`10 [+] 10 [%] [K]` → +10%),
+  A21 (`2 [⇧y^x] 3 [K]` → y^x 3) headlessly.
+
+## D19 — Manual register storage side effects
+- **Date:** 2026-11-02
+- **Status:** Accepted
+- **Decision:** `NPV` stores its result in PV and `IRR/YR` stores its result in I/YR
+  (manual p. 84); `R0`–`R14` alias the cash-flow list while flows exist (manual p. 80:
+  `⇧STO 0` replaces CF0; `RCL 0` views it); `⇧STO` followed by a business-register name
+  stores X into that register.
+- **Verified by:** A27 (STO 0 replaces CF0, `⇧IRR` 12.49 auto-stored, `RCL IYR` 12.49)
+  and A31 (`RCL 0` → −11,000.00) headlessly.

@@ -39,25 +39,25 @@ Live task board. Update this **every** time a task changes state.
 
 | ID    | Task | Status | Notes |
 |-------|------|--------|-------|
-| T1.1  | Number formatting (DISP, RND, period/comma, scientific) | `Done` | Grouped output respects the 12-character limit; scientific formatting rounds to DISP precision. Manual verification remains. |
+| T1.1  | Number formatting (DISP, RND, period/comma, scientific) | `Done` | Grouped output respects the 12-character limit; scientific formatting rounds to DISP precision. `⇧DISP` `=` full-precision mantissa view and `⇧RND` wired; A25/A26/A29 (manual pp. 27–29) added, browser check pending. |
 | T1.2  | Arithmetic (chained, two-number INPUT functions) | `Verified` | User reports Edge PASS for percent examples A2–A6 and chaining A10. |
-| T1.3  | Math functions (x², √x, 1/x, y^x, e^x, LN, n!, E) | `Done` | Unary math, factorial, scientific exponent entry, and both y^x input paths implemented; manual examples remain to verify. |
+| T1.3  | Math functions (x², √x, 1/x, y^x, e^x, LN, n!, E) | `Done` | Unary math, factorial, scientific exponent entry, and both y^x input paths implemented; A21 (y^x `K`), A28 (1/x in chain), A30 (scientific entry) added, browser check pending. |
 | T1.4  | Business percentages (`%`, `%CHG`, `MAR`, `MU`, `CST`, `PRC`) | `Verified` | Edge runner PASS for A7 (%CHG) and A8 (MAR); remaining business examples still need verification. |
 | T1.5  | Interest conversion (`NOM%` ↔ `EFF%`) | `Verified` | Edge runner PASS for A1 (NOM/EFF conversion). |
 | T1.6  | TVM (`N`, `I/YR`, `PV`, `PMT`, `FV`, `P/YR`, `BEG/END`) | `Verified` | Solve all five variables, including numerical I/YR and BEGIN timing; A12 (loan PMT −122.86, manual p. 13) passes in Chromium (and Chrome/Firefox/Edge). |
 | T1.7  | NPV / IRR (cash flows, `Nj`) | `Verified` | CF0 + up to 14 groups, repeat counts 1–99, NPV and IRR/YR on the manual's nominal convention (D15); A11 (IRR/YR 15.96, NPV 622.85, manual pp. 17–18) passes in Chromium (and Chrome/Firefox/Edge). |
 | T1.8  | Statistics & regression (`Σ+`/`Σ−`, means, Sx/Sy, σx/σy, r, x̂/ŷ, m, x̄w) | `Verified` | Summation, inverse regression, prediction, standard deviations, correlation, and weighted mean; A13–A15 (manual pp. 89–92) pass in Chromium (and Chrome/Firefox/Edge). |
-| T1.9  | Amortization (`AMORT`) | `Done` | Repeated AMORT cycles report interest, principal, and balance for entered periods; verify sequence against manual. |
+| T1.9  | Amortization (`AMORT`) | `Done` | Rewritten to manual p. 15: INPUT pair gives `PEr start- end`, bare number gives `1..n`, `=` cycles Int → Prin → bAL; per-period interest rounded to cents (D17). A23/A24 (manual p. 15) added, browser check pending. |
 
 ## Phase 2 — Memory, registers & clearing
 
 | ID    | Task | Status | Notes |
 |-------|------|--------|-------|
-| T2.1  | Business registers (N, I/YR, PV, PMT, FV, CST, PRC, MAR/MU, P/YR, EFF%) | `Done` | Store, recall, and applicable solve operations implemented. |
-| T2.2  | `M` register (`→M`, `RM`, `M+`) | `Done` | Three memory handlers implemented; manual verification remains. |
-| T2.3  | Numbered registers `R0`–`R.4` (`STO`/`RCL`) | `Done` | 15 slots with two-step selection implemented; manual verification remains. |
+| T2.1  | Business registers (N, I/YR, PV, PMT, FV, CST, PRC, MAR/MU, P/YR, EFF%) | `Done` | Store (`⇧STO` + register name), recall, and applicable solve operations implemented; NPV stores to PV and IRR/YR stores to I/YR per manual p. 84 (A27). |
+| T2.2  | `M` register (`→M`, `RM`, `M+`) | `Done` | Three memory handlers implemented; A18 (manual p. 37, 17 →M, +14.25 +16.95, −4.65, RM → 43.55) added, browser check pending. |
+| T2.3  | Numbered registers `R0`–`R.4` (`STO`/`RCL`) | `Done` | 15 slots with two-step selection, `STO` <op> register arithmetic (manual p. 81), and R0–R14 aliasing the cash-flow list; A27/A31 added, browser check pending. |
 | T2.4  | Clearing semantics (`C`, `◄`, `CLEAR ALL`, `CL Σ`) | `Done` | Clear current entry/calculation, all memory, and statistics handlers implemented. |
-| T2.5  | `SWAP` | `Done` | Swaps pending values and toggles hidden two-result outputs. |
+| T2.5  | `SWAP` | `Done` | Swaps pending values and toggles hidden two-result outputs; exercised by A13/A15/A26 (`⇧K`); K constants implemented per manual pp. 35–37 (A19–A21). |
 
 ## Phase 3 — Fidelity & polish
 
@@ -73,8 +73,8 @@ Live task board. Update this **every** time a task changes state.
 
 | ID    | Task | Status | Notes |
 |-------|------|--------|-------|
-| T4.1  | Acceptance tests (manual worked examples) | `In Progress` | User reports all 15 runner checks (A1–A15) PASS in Chromium; values transcribed from the manual (pp. 13, 17–18, 22, 89–92). Remaining coverage: math functions, amortization, registers/memory examples. |
-| T4.2  | Regression test suite | `In Progress` | All 15 runner cases pass in Chromium/Chrome/Firefox/Edge and the headless Node harness; suite still needs register, amortization, and DISP/RND coverage. |
+| T4.1  | Acceptance tests (manual worked examples) | `In Progress` | Runner expanded to 31 checks (A1–A31); A16–A31 derived from manual pp. 14–15, 26–29, 34–37, 78–84. All 31 pass in the headless harness; browser confirmation pending. |
+| T4.2  | Regression test suite | `In Progress` | 31/31 in the headless Node harness (runner keys now parsed from `index.html` so shift labels can't drift). Awaiting browser re-run of the expanded suite. |
 | T4.3  | Cross-browser verification | `Blocked` | User verified PASS in Chromium, Chrome, Firefox, and Edge. Safari cannot be tested until the app is deployed. |
 
 ---
@@ -114,3 +114,4 @@ The calculator is considered **shipped** when:
 | 2026-11-01 | T3.5 → `In Progress`. Adjusted badge shape/color, printed typography, and LCD digit alignment against the reference photo. |
 | 2026-11-02 | Added A9 and A11–A15 (manual-derived) to the runner; fixed NPV/IRR nominal convention (D15, I9), stats entry commit (I10), and runner shifted-digit dispatch (I11). All 15 checks pass headlessly; browser confirmation pending. |
 | 2026-11-02 | User reports all 15 `?test=1` checks PASS in a real browser. T1.6, T1.7, T1.8 → `Verified`. T4.1–T4.2 coverage and other browsers remain. |
+| 2026-11-02 | Keypad realigned to specs.md §5.1 (I12); K constants, amortization `PEr`/Int/Prin/bAL cycle (D17), DISP-`=` full-precision view, STO/RCL extensions (D19) implemented. Runner expanded to A1–A31; 31/31 headless, browser confirmation pending. |

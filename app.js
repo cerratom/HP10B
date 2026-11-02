@@ -44,6 +44,10 @@ function defaultState() {
     inputArmed: false,    // ':' annunciator / two-value context active
     constOp: null,        // K constant {op:'+'|'-'|'*'|'/'|'^', val, pct}
     lastBin: null,        // {op, b} for automatic-constant repeat of '='
+    stoOp: null,          // pending STO <op> register arithmetic ('+'|'-'|'*'|'/')
+    pctK: false,          // a % result just produced; K stores it as a "±n%" constant
+    pctVal: null,         // the operand before % was applied (for `n [+] x [%] K`)
+    dispHold: false,      // DISP then '=': temporarily view the full-precision mantissa
     rclMode: null,        // 'STO' | 'RCL' awaiting register selection
     cfView: -1,           // index of cash-flow group currently viewed (>=0)
     parenStack: [],       // [{op, first}] pushed by '('
@@ -163,11 +167,13 @@ function formatValue(v, disp, sep, fullPrecision) {
   }
 
   if (fullPrecision) {
-    /* full-precision mode: all significant digits, no trailing zeros */
-    var f2 = p.frac.replace(/0+$/, '');
-    var out = p.int + (f2 ? decSep + f2 : '');
-    var grouped = (neg ? '-' : '') + groupInt(p.int, grpSep) + (f2 ? decSep + f2 : '');
-    return grouped.length <= 12 ? grouped : sci(v, 10);
+    /* "DISP then hold =": 12-digit mantissa, decimal point hidden,
+     * trailing zeros shown (manual p. 28: 1.42857… → 142857142857) */
+    var m = Math.abs(v).toPrecision(12);            // e.g. "9.88000000000E+2"
+    var mant = m.indexOf('e') >= 0 ? m.slice(0, m.indexOf('e')) : m;
+    mant = mant.replace('.', '');
+    if (mant.length > 12) mant = mant.slice(0, 12);
+    return (neg ? '-' : '') + mant;
   }
 
   var r = roundDigits(p.int, p.frac, disp);
@@ -277,13 +283,14 @@ function pressDigit(d) {
   var s = state;
   if (!s.power) return;
   if (s.msg && s.msg.kind === 'error') return;   // only C/◄ work in error
-  if (s.dispArmed) { s.modes.disp = Number(d); s.modes.fullPrecision = false; s.dispArmed = false; saveState(s); render(); return; }
+  if (s.dispArmed) { commitEntry(); s.modes.disp = Number(d); s.modes.fullPrecision = false; s.dispArmed = false; saveState(s); render(); return; }
   if (s.decimalRegister && s.rclMode) { registerSelect('.' + d); return; }
   if (s.rclMode) { registerSelect(d); return; }  // STO/RCL two-step selection
   if (s.msg && s.msg.kind === 'status') clearMessage();
   if (!s.entering) {
     s.entry = ''; s.entering = true;
     s.label = null; s.twoVal = null;             // new entry starts fresh
+    s.pctK = false;
   }
   var em = /^-?[0-9.]*[Ee]-?\d*$/.test(s.entry)
     ? s.entry.match(/^(.*?[Ee])(-?)(\d*)$/) : null;
@@ -381,6 +388,8 @@ function hardClearEntry() {
   s.other = null; s.inputArmed = false;
   s.label = null; s.twoVal = null;
   s.msg = null;
+  s.constOp = null; s.stoOp = null; s.pctVal = null; s.pctK = false;
+  if (s.amort) s.amort.stageActive = false;    // C ends the Int/Prin/bAL cycle
   saveState(s); render();
 }
 
@@ -389,6 +398,18 @@ function pressOp(op) {
   var s = state;
   if (!s.power || (s.msg && s.msg.kind === 'error')) return;
   commitEntry();
+  if (op === '%') { percent(); return; }
+  if (s.rclMode === 'STO' && /^[+\-*/]$/.test(op)) {   // STO <op> Rn (manual p. 81)
+    s.stoOp = op; saveState(s); render(); return;
+  }
+  if (s.constOp && !s.entering && !s.parenStack.length) {
+    /* K constant active (manual p. 35): `3 [×] 5 [K] [4] [=]` → 20. The op key
+     * re-arms with a new operand; a new number key clears the constant. */
+    s.constOp = { op: op, val: s.displayVal, pct: false };
+    s.pendOp = null; s.first = null;
+    s.inputArmed = false; s.label = null; s.twoVal = null;
+    saveState(s); render(); return;
+  }
   if (s.pendOp && s.first !== null) {
     // execute pending op first (immediate execution, no precedence)
     var r = applyBinary(s.pendOp, s.first, s.displayVal);
@@ -396,9 +417,24 @@ function pressOp(op) {
     s.displayVal = r;
   }
   s.pendOp = op; s.first = s.displayVal;
+  s.constOp = null;                            // operator after a number cancels K
   if (s.other === null) s.inputArmed = false;
   s.label = null; s.twoVal = null;
   saveState(s); render();
+}
+
+function pressK() {
+  var s = state;
+  if (!s.power || (s.msg && s.msg.kind === 'error')) return;
+  commitEntry();
+  if (s.constOp) { pressEquals(); return; }     // K K → apply the constant
+  if (s.pctK && s.pendOp) {                      // `10 [+] 10 [%] [K]` → "+10%" (manual p. 36)
+    s.constOp = { op: s.pendOp, val: s.pctVal, pct: true };
+    s.pctK = false;
+  } else if (s.pendOp && s.first !== null) {     // `5 [+] 2 [K]` → "+2"
+    s.constOp = { op: s.pendOp, val: s.displayVal, pct: false };
+  }
+  saveState(s); render();                        // pending op stays armed: first '=' chains
 }
 
 function applyBinary(op, a, b) {
@@ -422,6 +458,7 @@ function pressEquals() {
   if (!s.power || (s.msg && s.msg.kind === 'error')) return;
   commitEntry();
   closeAllParens(false);
+  if (s.amort && s.amort.stageActive) { cycleAmortStage(); return; }  // Int → Prin → bAL (manual p. 15)
   if (s.pendOp && s.first !== null) {
     var r = applyBinary(s.pendOp, s.first, s.displayVal);
     if (r === 'ERR_DIV') { setError('Error - Func'); return; }
@@ -433,11 +470,11 @@ function pressEquals() {
     /* K-constant active: apply stored operation to the display value */
     var c = s.constOp;
     var d = s.displayVal;
-    var cv = c.pct ? d * (c.val / 100) : c.val;
+    var cv = c.pct ? c.val / 100 : c.val;
     var res;
     switch (c.op) {
-      case '+': res = d + (c.pct ? d * c.val / 100 : c.val); break;
-      case '-': res = d - (c.pct ? d * c.val / 100 : c.val); break;
+      case '+': res = d + (c.pct ? d * cv : cv); break;
+      case '-': res = d - (c.pct ? d * cv : cv); break;
       case '*': res = d * cv; break;
       case '/': if (cv === 0) { setError('Error - Func'); return; } res = d / cv; break;
       case '^': res = Math.pow(d, cv); if (!isFinite(res)) { setError('Error - Func'); return; } break;
@@ -638,8 +675,21 @@ function tvmKey(name) {
 function registerSelect(key) {
   var index = key.charAt(0) === '.' ? 10 + Number(key.charAt(1)) : Number(key);
   if (!Number.isInteger(index) || index < 0 || index >= state.R.length) return;
-  if (state.rclMode === 'STO') { commitEntry(); state.R[index] = state.displayVal; }
-  else result(state.R[index]);
+  /* R0..R14 alias the cash-flow list when flows have been entered
+   * (manual p. 30: "registers for storing numbers, cash flows, and statistics";
+   *  p. 80: STO replaces a cash flow) */
+  var isCF = index < state.cfs.length;
+  if (state.rclMode === 'STO') {
+    commitEntry();
+    if (isCF) state.cfs[index].cf = state.displayVal;
+    else if (state.stoOp) {
+      var r = applyBinary(state.stoOp, state.R[index], state.displayVal);
+      if (typeof r !== 'number') { setError('Error - Func'); state.rclMode = null; state.stoOp = null; saveState(state); render(); return; }
+      state.R[index] = r; state.displayVal = r;
+      state.stoOp = null;
+    } else state.R[index] = state.displayVal;
+  }
+  else result(isCF ? state.cfs[index].cf : state.R[index]);
   state.rclMode = null; state.decimalRegister = false;
   saveState(state); render();
 }
@@ -650,7 +700,11 @@ function clearAll() {
 }
 function percent() {
   commitEntry();
-  if (state.pendOp && (state.pendOp === '+' || state.pendOp === '-') && state.first !== null) result(state.first * state.displayVal / 100);
+  if (state.pendOp && (state.pendOp === '+' || state.pendOp === '-') && state.first !== null) {
+    state.pctK = true;                         // a following K stores a "+n%" constant
+    state.pctVal = state.displayVal;
+    result(state.first * state.displayVal / 100);
+  }
   else if (state.other !== null) result(state.other ? state.displayVal / state.other * 100 : NaN);
   else result(state.displayVal / 100);
 }
@@ -697,33 +751,50 @@ function solveBusinessRegister(name) {
   }
   saveState(state);
 }
+/* AMORT (⇧FV), manual p. 15 + ch. 6: an INPUT pair gives first..last period
+ * (`1 [INPUT] 12`), a bare number gives periods 1..n. AMORT shows `PEr s- e`;
+ * `=` then cycles Int → Prin → bAL. Interest/principal display follows the
+ * payment sign (money paid out is negative). */
 function amortize() {
-  if (state.entering) {
-    var periods = Math.round(parseEntry(state.entry));
-    if (periods < 1 || periods > 999 || periods !== parseEntry(state.entry)) { setError('Error - Per'); return; }
-    state.amort = { periods: periods, done: 0, balance: state.PV, interest: 0, principal: 0, stage: 0 };
+  var s = state;
+  var start = null, end = null;
+  if (s.inputArmed && s.other !== null) {
+    commitEntry();
+    if (!Number.isInteger(s.other) || !Number.isInteger(s.displayVal)) { setError('Error - Per'); return; }
+    start = s.other; end = s.displayVal;
+  } else if (s.entering) {
+    commitEntry();
+    if (!Number.isInteger(s.displayVal)) { setError('Error - Per'); return; }
+    start = 1; end = s.displayVal;
+  } else if (s.amort && s.amort.stageActive) {
+    cycleAmortStage();
+    return;
   }
-  var a = state.amort;
   if (!validPeriods()) { setError('Error - P Yr'); return; }
-  if (!a || !Number.isFinite(state.PMT)) { setError('Error - Func'); return; }
-  if (a.stage === 0) {
-    a.interest = 0; a.principal = 0;
-    var rate = state.IYR / (100 * state.PYR);
-    for (var i = 0; i < a.periods; i++) {
-      var interest = a.balance * rate;
-      var principal = -state.PMT - interest;
-      a.interest += interest;
-      a.principal += principal;
-      a.balance -= principal;
-      a.done++;
-    }
-    a.stage = 1; state.label = 'Int'; result(a.interest);
-  } else if (a.stage === 1) {
-    a.stage = 2; state.label = 'Prin'; result(a.principal);
-  } else {
-    a.stage = 0; state.label = 'bAL'; result(a.balance);
+  if (start === null || !Number.isFinite(s.PMT)) { setError('Error - Func'); return; }
+  if (start < 1 || end > 999 || start > end) { setError('Error - Per'); return; }
+  var rate = s.IYR / (100 * s.PYR);
+  var balance = s.PV, interest = 0, principal = 0;
+  for (var i = 1; i <= end; i++) {
+    /* Per the manual's worked examples (p. 15), each period's interest is
+     * rounded to cents before the principal is derived. */
+    var it = Math.round(balance * rate * 100) / 100;
+    var pr = -s.PMT - it;
+    if (i >= start) { interest += it; principal += pr; }
+    balance -= pr;
   }
-  state.amort = a; saveState(state); render();
+  s.amort = { start: start, end: end, done: end, balance: balance,
+              interest: interest, principal: principal, stage: 0, stageActive: true };
+  s.other = null; s.inputArmed = false;
+  setStatus('PEr ' + start + '- ' + end);
+}
+function cycleAmortStage() {
+  var a = state.amort;
+  state.msg = null;
+  if (a.stage === 0) { a.stage = 1; state.label = 'Int'; state.displayVal = -a.interest; }
+  else if (a.stage === 1) { a.stage = 2; state.label = 'Prin'; state.displayVal = -a.principal; }
+  else { a.stage = 0; state.label = 'bAL'; state.displayVal = a.balance; }
+  saveState(state); render();
 }
 function enterCashFlow() {
   commitEntry();
@@ -760,7 +831,9 @@ function npvResult() {
   if (!validPeriods()) { setError('Error - P Yr'); return; }
   var rate = state.IYR / (100 * state.PYR);
   if (1 + rate <= 0) { setError('Error - Int'); return; }
-  result(cashFlowNpv(rate));
+  var npv = cashFlowNpv(rate);
+  if (Number.isFinite(npv)) state.PV = npv;   // NPV is stored in PV (manual p. 84)
+  result(npv);
 }
 function solveIrrPeriod() {
   var points = [-0.999999999, -0.99, -0.9, -0.5, -0.1, -0.01, 0];
@@ -788,7 +861,9 @@ function irrResult() {
   if (!validPeriods()) { setError('Error - P Yr'); return; }
   var rate = solveIrrPeriod();
   if (!Number.isFinite(rate)) { setError('Error - Soln'); return; }
-  result(100 * rate * state.PYR);           // nominal annual, per manual (IRR/YR ÷ P/YR = per period)
+  var irr = 100 * rate * state.PYR;            // nominal annual, per manual (IRR/YR ÷ P/YR = per period)
+  state.IYR = irr;                             // IRR/YR is stored in I/YR (manual p. 84)
+  result(irr);
 }
 function accumulateStats(sign) {
   commitEntry();
@@ -849,7 +924,7 @@ function statFunction(kind) {
 var dispatch = {
   DECIMAL: pressDecimal, NEGATE: pressSign, SCI_E: pressE,
   BACK: pressBackspace, CLEAR: pressC, INPUT: pressInput,
-  EQUALS: pressEquals, SWAP: pressSwap,
+  EQUALS: pressEquals, SWAP: pressSwap, K: pressK,
   ADD: function () { pressOp('+'); }, SUB: function () { pressOp('-'); },
   MUL: function () { pressOp('*'); }, DIV: function () { pressOp('/'); },
   YX: powerKey,
@@ -869,9 +944,14 @@ var dispatch = {
   YHAT_M: function () { statFunction('YM'); },
   XBARW: function () { statFunction('WEIGHTED'); },
   PRC: function () { solveBusinessRegister('PRC'); }, MAR: function () {
-    if (state.entering) businessRegister('MAR'); else marginResult(false);
+    if (state.entering) { businessRegister('MAR'); state.marginBasis = 'MAR'; saveState(state); }
+    else marginResult(false);
   },
-  MU: function () { marginResult(true); }, AMORT: amortize,
+  MU: function () {
+    // entering: store markup % in MAR/MU register (manual p. 34); else compute markup
+    if (state.entering) { businessRegister('MAR'); state.marginBasis = 'MU'; saveState(state); }
+    else marginResult(true);
+  }, AMORT: amortize,
   LPAREN: pressParenOpen, RPAREN: pressParenClose,
   PYR: function () { businessRegister('PYR'); },
   XPYR: function () { commitEntry(); result(state.displayVal * state.PYR); },
@@ -882,7 +962,7 @@ var dispatch = {
   STO: function () { state.rclMode = 'STO'; saveState(state); render(); },
   CLEARALL: clearAll,
   CLSIGMA: function () { state.stats = defaultState().stats; saveState(state); render(); },
-  DISP: function () { state.dispArmed = true; saveState(state); render(); },
+  DISP: function () { commitEntry(); state.dispArmed = true; saveState(state); render(); },
   SHIFT: function () { state.shiftArmed = !state.shiftArmed; saveState(state); render(); },
   BEGEND: function () { state.modes.annuity = state.modes.annuity === 'END' ? 'BEGIN' : 'END'; saveState(state); render(); },
   PERIOD_COMMA: function () { state.modes.sep = state.modes.sep === '.' ? ',' : '.'; saveState(state); render(); },
@@ -897,6 +977,15 @@ var dispatch = {
 
 function handleKey(key) {
   if (!state.power && key !== 'CLEAR') return;
+  if (state.dispArmed && key === 'EQUALS') {   // DISP then '=': full 12-digit mantissa view
+    state.dispArmed = false; state.dispHold = true;
+    state.modes.fullPrecision = true; saveState(state); render(); return;
+  }
+  if (state.dispHold) {                        // any key returns to the normal display
+    state.dispHold = false;
+    if (key === 'EQUALS') { state.modes.fullPrecision = false; saveState(state); render(); return; }
+    state.modes.fullPrecision = false;
+  }
   if (state.dispArmed && key === 'CLEAR') { state.dispArmed = false; state.modes.fullPrecision = true; saveState(state); render(); return; }
   if (/^[0-9]$/.test(key)) { pressDigit(key); return; }
   var action = dispatch[key];
@@ -909,10 +998,17 @@ function pressButton(button) {
     state.shiftArmed = false;
     saveState(state);
   }
-  if (state.rclMode === 'RCL' && /^(N|IYR|PV|PMT|FV|PYR|EFF|CST|PRC|MAR)$/.test(key)) {
-    state.rclMode = null;
-    result(state[key]);
-    return;
+  if (state.rclMode && /^(N|IYR|PV|PMT|FV|PYR|EFF|CST|PRC|MAR)$/.test(key)) {
+    if (state.rclMode === 'RCL') {
+      state.rclMode = null;
+      result(state[key]);
+      return;
+    }
+    if (state.rclMode === 'STO') {              // STO followed by a register name
+      commitEntry(); state[key] = state.displayVal;
+      state.rclMode = null; saveState(state); render();
+      return;
+    }
   }
   handleKey(key);
   render();
@@ -925,7 +1021,7 @@ var shortcutKeys = {
   Backspace: 'BACK', Escape: 'CLEAR', '%': 'PCT', '^': 'YX',
   '!': 'FACT', e: 'EXP', l: 'LN', s: 'SQRT', q: 'SQUARE',
   n: 'N', i: 'IYR', p: 'PV', m: 'PMT', f: 'FV', c: 'CST',
-  r: 'RCL', a: 'AMORT', g: 'SWAP', v: 'INPUT', x: 'SIGMA_PLUS', y: 'MAR'
+  r: 'RCL', a: 'AMORT', g: 'SWAP', k: 'K', v: 'INPUT', x: 'SIGMA_PLUS', y: 'MAR'
 };
 function handleKeyboard(event) {
   if (event.altKey || event.ctrlKey || event.metaKey || event.repeat) return;
@@ -995,11 +1091,144 @@ function runAcceptanceChecks() {
     /* manual p. 13 at-a-glance — $14,000 loan, 360 months at 10% I/YR, solve PMT */
     { id: 'A12', run: function () { enter('12'); key('PMT', true); enter('360'); key('N'); enter('10'); key('IYR'); enter('14000'); key('PV'); key('0'); key('FV'); key('PMT'); }, expected: '-122.86' },
     /* manual p. 90 example 2 — heights/weights two-variable stats */
-    { id: 'A13', run: function () { key('TO_M', true); [[193, 90], [182, 81], [177, 83], [185, 77]].forEach(function (pair) { enter(String(pair[0])); key('INPUT'); enter(String(pair[1])); key('SIGMA_PLUS'); }); key('7', true); var xbar = dom.main.textContent; key('SWAP'); var ybar = dom.main.textContent; key('9', true); var sigx = dom.main.textContent; key('SWAP'); return [xbar, ybar, sigx, dom.main.textContent]; }, expected: ['184.25', '82.75', '5.80', '4.71'] },
+    { id: 'A13', run: function () { key('TO_M', true); [[193, 90], [182, 81], [177, 83], [185, 77]].forEach(function (pair) { enter(String(pair[0])); key('INPUT'); enter(String(pair[1])); key('SIGMA_PLUS'); }); key('7', true); var xbar = dom.main.textContent; key('K', true); var ybar = dom.main.textContent; key('9', true); var sigx = dom.main.textContent; key('K', true); return [xbar, ybar, sigx, dom.main.textContent]; }, expected: ['184.25', '82.75', '5.80', '4.71'] },
     /* manual pp. 89-90 example 1 — one-variable sail-change times: mean and Sx */
     { id: 'A14', run: function () { key('TO_M', true); '4.5 4 2 3.25 3.5 3.75'.split(' ').forEach(function (v) { enter(v); key('SIGMA_PLUS'); }); key('7', true); var mean = dom.main.textContent; key('8', true); return [mean, dom.main.textContent]; }, expected: ['3.50', '0.85'] },
     /* manual p. 92 forecasting example — regression b, m, r for advertising/sales data */
-    { id: 'A15', run: function () { key('TO_M', true); [[2, 1400], [1, 920], [3, 1100], [5, 2265], [5, 2890], [4, 2200]].forEach(function (pair) { enter(String(pair[0])); key('INPUT'); enter(String(pair[1])); key('SIGMA_PLUS'); }); key('0'); key('4', true); var intercept = dom.main.textContent; key('SWAP'); var slope = dom.main.textContent; key('SWAP', true); key('SWAP'); return [intercept, slope, dom.main.textContent]; }, expected: ['376.25', '425.88', '0.90'] }
+    { id: 'A15', run: function () { key('TO_M', true); [[2, 1400], [1, 920], [3, 1100], [5, 2265], [5, 2890], [4, 2200]].forEach(function (pair) { enter(String(pair[0])); key('INPUT'); enter(String(pair[1])); key('SIGMA_PLUS'); }); key('0'); key('5', true); var intercept = dom.main.textContent; key('K', true); var slope = dom.main.textContent; key('4', true); key('K', true); return [intercept, slope, dom.main.textContent]; }, expected: ['376.25', '425.88', '0.90'] },
+    /* manual p. 34 — markup on cost; markup then margin */
+    { id: 'A16', run: function () { enter('19'); key('CST'); enter('60'); key('MAR', true); key('PRC'); }, expected: '30.40' },
+    { id: 'A17', run: function () { enter('9.6'); key('CST'); enter('15'); key('MAR', true); key('PRC'); var price = dom.main.textContent; key('MAR'); return [price, dom.main.textContent]; }, expected: ['11.04', '13.04'] },
+    /* manual p. 37 — M register: store, add, subtract (via +/− M+), recall */
+    { id: 'A18', run: function () { enter('17'); key('TO_M'); enter('14.25'); key('M_PLUS'); enter('16.95'); key('M_PLUS'); enter('4.65'); key('NEGATE'); key('M_PLUS'); key('RM'); }, expected: '43.55' },
+    /* manual p. 36 — K constants: "+2", "y^x 3", and "+10%" */
+    { id: 'A19', run: function () {
+      enter('5'); key('ADD'); key('2'); key('K');
+      key('EQUALS'); var first = dom.main.textContent;              // 5 + 2
+      enter('6'); key('EQUALS'); var second = dom.main.textContent; // 6 + 2
+      enter('7'); key('EQUALS');
+      return [first, second, dom.main.textContent];                 // 7 + 2
+    }, expected: ['7.00', '8.00', '9.00'] },
+    { id: 'A20', run: function () {
+      enter('10'); key('ADD'); enter('10'); key('PCT'); key('K');
+      var shown = dom.main.textContent;                             // 10% of 10 = 1.00
+      key('EQUALS'); var first = dom.main.textContent;              // 10 + 1 = 11
+      key('EQUALS'); var second = dom.main.textContent;             // 11 + 10% = 12.10
+      enter('25'); key('EQUALS');
+      return [shown, first, second, dom.main.textContent];          // 25 + 10% = 27.50
+    }, expected: ['1.00', '11.00', '12.10', '27.50'] },
+    { id: 'A21', run: function () {
+      enter('2'); key('MUL', true); enter('3'); key('K');
+      var stored = dom.main.textContent;                            // constant "y^x 3"
+      key('EQUALS'); var first = dom.main.textContent;              // 2^3
+      enter('4'); key('EQUALS');
+      return [stored, first, dom.main.textContent];                 // 4^3
+    }, expected: ['3.00', '8.00', '64.00'] },
+    /* manual p. 14 — TVM What if: re-enter PMT, solve PV; then new IYR */
+    { id: 'A22', run: function () {
+      enter('12'); key('PMT', true); enter('360'); key('N'); enter('10'); key('IYR'); enter('14000'); key('PV'); enter('0'); key('FV');
+      enter('100'); key('NEGATE'); key('PMT');
+      key('PV'); var borrow = dom.main.textContent;                 // 11,395.08
+      enter('9.5'); key('IYR'); key('PV');
+      return [borrow, dom.main.textContent];                        // 11,892.67
+    }, expected: ['11,395.08', '11,892.67'] },
+    /* manual p. 15 — amortize period 20 of the p. 13 loan: = cycles Int → Prin → bAL */
+    { id: 'A23', run: function () {
+      enter('12'); key('PMT', true); enter('360'); key('N'); enter('10'); key('IYR'); enter('14000'); key('PV'); enter('0'); key('FV'); key('PMT');
+      enter('20'); key('INPUT'); key('FV', true);                   // ⇧AMORT → "PEr 20- 20"
+      key('EQUALS'); var interest = dom.main.textContent;           // Int −115.61
+      key('EQUALS'); var principal = dom.main.textContent;          // Prin −7.25
+      key('EQUALS');
+      return [interest, principal, dom.main.textContent];           // bAL 13,865.83
+    }, expected: ['-115.61', '-7.25', '13,865.83'] },
+    /* manual p. 15 — amortize payments 1..12 via an INPUT range */
+    { id: 'A24', run: function () {
+      enter('12'); key('PMT', true); enter('360'); key('N'); enter('10'); key('IYR'); enter('14000'); key('PV'); enter('0'); key('FV'); key('PMT');
+      enter('1'); key('INPUT'); enter('12'); key('FV', true);       // ⇧AMORT → "PEr 1- 12"
+      key('EQUALS'); var interest = dom.main.textContent;           // Int −1,396.50
+      key('EQUALS'); var principal = dom.main.textContent;          // Prin −77.82
+      key('EQUALS');
+      return [interest, principal, dom.main.textContent];           // bAL 13,922.18
+    }, expected: ['-1,396.50', '-77.82', '13,922.18'] },
+    /* manual p. 28 — DISP then '=' shows all 12 digits (decimal point hidden) */
+    { id: 'A25', run: function () {
+      enter('10'); key('DIV'); key('7'); key('EQUALS');
+      var shown = dom.main.textContent;                             // 1.43
+      key('EQUALS', true); key('EQUALS');                           // ⇧DISP then =
+      var full = dom.main.textContent;                              // 142857142857
+      key('EQUALS');                                                // back to normal view
+      return [shown, full, dom.main.textContent];
+    }, expected: ['1.43', '142857142857', '1.43'] },
+    /* manual p. 29 — RND rounds the stored number to the displayed format */
+    { id: 'A26', run: function () {
+      enter('9.87654321'); key('EQUALS', true); key('2');           // ⇧DISP 2
+      var fixed = dom.main.textContent;                             // 9.88
+      key('EQUALS', true); key('EQUALS');                           // full view: 987654321000
+      var full = dom.main.textContent;
+      key('EQUALS');                                                // back to 9.88
+      key('BACK', true);                                            // ⇧RND
+      var rounded = dom.main.textContent;                           // 9.88
+      key('EQUALS', true); key('EQUALS');                           // stored value is now rounded
+      return [fixed, full, rounded, dom.main.textContent];          // 988000000000
+    }, expected: ['9.88', '987654321000', '9.88', '988000000000'] },
+    /* manual pp. 80-84 — discounted contract: NPV 27,199.92; replace CF0 via STO; IRR 12.49 */
+    { id: 'A27', run: function () {
+      key('INPUT', true);                                           // CLEAR ALL
+      enter('12'); key('PMT', true);
+      enter('0'); key('CFJ'); enter('0'); key('CFJ'); key('3'); key('CFJ', true);
+      enter('5000'); key('CFJ'); enter('0'); key('CFJ'); key('4'); key('CFJ', true);
+      enter('5000'); key('CFJ'); key('2'); key('CFJ', true);
+      enter('0'); key('CFJ'); key('4'); key('CFJ', true);
+      enter('7500'); key('CFJ'); enter('0'); key('CFJ'); key('9'); key('CFJ', true);
+      enter('10000'); key('CFJ');
+      enter('15'); key('IYR'); key('PRC', true);                    // ⇧NPV
+      var npv = dom.main.textContent;                               // 27,199.92
+      enter('28000'); key('NEGATE'); key('RCL', true); key('0');    // ⇧STO 0 replaces CF0
+      var stored = dom.main.textContent;                            // -28,000.00
+      key('CST', true);                                             // ⇧IRR/YR
+      var irr = dom.main.textContent;                               // 12.49
+      key('RCL'); key('IYR');                                       // IRR auto-stored in I/YR (p. 84)
+      return [npv, stored, irr, dom.main.textContent];
+    }, expected: ['27,199.92', '-28,000.00', '12.49', '12.49'] },
+    /* manual p. 26 — 1/x inside a pending addition computes first */
+    { id: 'A28', run: function () {
+      enter('3.57'); key('ADD'); enter('2.36'); key('DIV', true);   // ⇧1/x → 0.42
+      var recip = dom.main.textContent;
+      key('EQUALS');                                                // 3.57 + 1/2.36
+      return [recip, dom.main.textContent];
+    }, expected: ['0.42', '3.99'] },
+    /* manual p. 27 — DISP n changes displayed decimals and rounds the display */
+    { id: 'A29', run: function () {
+      key('CLEAR'); key('EQUALS', true); key('3');                  // ⇧DISP 3
+      var zero = dom.main.textContent;                              // 0.000
+      enter('45.6'); key('MUL'); enter('.1256'); key('EQUALS');     // 5.727
+      var three = dom.main.textContent;
+      key('EQUALS', true); key('9');                                // ⇧DISP 9 → 5.727360000
+      var nine = dom.main.textContent;
+      key('EQUALS', true); key('2');                                // ⇧DISP 2 → 5.73
+      return [zero, three, nine, dom.main.textContent];
+    }, expected: ['0.000', '5.727', '5.727360000', '5.73'] },
+    /* manual p. 27 — scientific notation: automatic (1.00E14) and entered (4.00E-12) */
+    { id: 'A30', run: function () {
+      enter('10000000'); key('MUL'); enter('10000000'); key('EQUALS');
+      var big = dom.main.textContent;                               // 1.00E14
+      enter('4'); key('NEGATE', true); key('NEGATE'); key('1'); key('2'); // 4 ⇧E +/− 12
+      key('K', true);                                                     // SWAP commits the entry without computing
+      return [big, dom.main.textContent];                                 // 4.00E-12
+    }, expected: ['1.00E14', '4.00E-12'] },
+    /* manual pp. 78-79 — uneven cash flows IRR/YR 21.22; RCL 0 views CF0 */
+    { id: 'A31', run: function () {
+      key('INPUT', true);                                           // CLEAR ALL
+      enter('12'); key('PMT', true);
+      enter('11000'); key('NEGATE'); key('CFJ');                    // CF0 = -11,000
+      enter('0'); key('CFJ'); key('6'); key('CFJ', true);
+      enter('1000'); key('CFJ'); key('3'); key('CFJ', true);
+      enter('10000'); key('CFJ');
+      key('CST', true);                                             // ⇧IRR/YR
+      var irr = dom.main.textContent;                               // 21.22
+      key('RCL'); key('0');                                         // RCL 0 → CF0
+      return [irr, dom.main.textContent];
+    }, expected: ['21.22', '-11,000.00'] }
   ];
   checks.forEach(function (check) {
     state = defaultState(); render();
