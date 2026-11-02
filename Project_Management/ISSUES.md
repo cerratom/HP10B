@@ -38,7 +38,7 @@ Format (add new entries at the top of "Open" or "Resolved"):
 - **Symptom:** A long display value could expand the calculator and LCD beyond their intended width.
 - **Repro:** Enter or calculate a long value in the display.
 - **Root cause:** The LCD flex item and device minimum width allowed intrinsic content sizing to affect the layout.
-- **Fix:** Constrained the device to the viewport width and allowed the LCD value to shrink and clip inside its fixed display area.
+- **Fix:** Preserved the original device width rules and allowed the LCD value to shrink and clip inside its fixed display area.
 - **Verification:** CSS review and `git diff --check`; browser resize confirmation remains part of T3.5.
 
 ### I4 — C after OFF called a missing powerOn function

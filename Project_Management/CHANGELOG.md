@@ -15,6 +15,12 @@ Format (keep it consistent):
 
 ## Entries
 
+### 2026-11-01 — Preserve original calculator width
+
+- Restored the device's original `width: 100%`, 420px maximum, and 320px minimum sizing; long LCD contents remain constrained within the LCD.
+- Updated I5 to describe the LCD-only fix without changing the calculator's default size.
+- Related: T3.5, I5.
+
 ### 2026-11-01 — Keep long display values inside the calculator
 
 - Constrained the calculator body to the viewport and allowed the LCD value to shrink and clip within the display.
