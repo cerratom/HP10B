@@ -15,6 +15,12 @@ Format (keep it consistent):
 
 ## Entries
 
+### 2026-11-01 — Match calculator error messages to the manual
+
+- Read the scanned message appendix (manual pp. 133–135), transcribed error strings and triggers into the spec, and replaced generic errors at relevant calculation paths.
+- CLEAR ALL now displays `ALL CLr`; overflow results report `OFLO`.
+- Related: T3.2 (`Done`).
+
 ### 2026-11-01 — Refine calculator appearance against reference photo
 
 - Changed the HP badge to a beige square, italicized the 10B and BUSINESS markings, and left-aligned LCD digits to match the physical unit.

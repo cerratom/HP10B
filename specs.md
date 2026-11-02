@@ -490,10 +490,18 @@ state = {
 - Invalid operations produce an **error message** (e.g. divide by zero, domain error for
   `√` of a negative, `LN` of a non-positive, `n!` of a non-integer, no root for IRR).
 - `C` or `◄` clears the error and returns to a usable state.
-- **Full message list:** transcribe from the manual's message list (around manual p133 /
-  the messages appendix) during T3.2 and enumerate each message string + trigger here.
-  Until then, implement the common set (divide-by-zero, domain, overflow, no-solution)
-  with the device's wording.
+- **Error messages (manual pp. 133–135):**
+  - `Error - Func`: divide by zero; invalid factorial; LN of zero/negative; 0⁰ or 0 to a negative power; negative base to non-integer power; square root of a negative.
+  - `Error - Full`: more than five pending operations or more than 15 cash-flow groups.
+  - `Error - Int`: periodic interest rate is ≤ −100%.
+  - `Error - n`: solve for I/YR with N ≤ 0.99999 or N ≥ 1E10.
+  - `Error - P Yr`: invalid P/YR or attempt to solve P/YR.
+  - `Error - PEr`: invalid Nj (not an integer from 1 to 99).
+  - `Error - Soln`: no solution for IRR/YR or I/YR.
+  - `Error - StAt`: invalid statistical calculation (empty/insufficient data, zero variance or denominator).
+  - `OFLO`: overflow; display briefly, then show the overflow value. Intermediate TVM/cash-flow overflow leaves the message displayed.
+  - `UFLO`: intermediate TVM result is too small to process.
+- Status labels include `ALL CLr`, `bAL`, `CF<j>`, `Int`, and `n<j>`.
 
 ### 12.3 Overflow / underflow
 

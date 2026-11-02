@@ -541,27 +541,35 @@ function pressSwap() {
 /* ===================== §5 KEY DISPATCH AND INITIALIZATION ================= */
 var state;
 function result(value) {
-  if (!isFinite(value)) { setError('Error - Func'); return; }
+  if (!isFinite(value)) { setError(isNaN(value) ? 'Error - Func' : 'OFLO'); return; }
   state.displayVal = value; state.entry = ''; state.entering = false;
   state.other = null; state.inputArmed = false;
   saveState(state); render();
 }
 function businessRegister(name) {
-  if (state.entering) { commitEntry(); state[name] = state.displayVal; }
+  if (state.entering) {
+    commitEntry();
+    if (name === 'PYR' && (!Number.isInteger(state.displayVal) || state.displayVal < 1 || state.displayVal > 999)) {
+      setError('Error - P Yr'); return;
+    }
+    state[name] = state.displayVal;
+  }
   else state.displayVal = state[name];
   saveState(state); render();
 }
 function validPeriods() {
-  return Number.isFinite(state.PYR) && state.PYR > 0;
+  return Number.isInteger(state.PYR) && state.PYR >= 1 && state.PYR <= 999;
 }
 function effectiveRate() {
-  if (!validPeriods() || 1 + state.IYR / (100 * state.PYR) <= 0) { setError('Error - Func'); return; }
+  if (!validPeriods()) { setError('Error - P Yr'); return; }
+  if (1 + state.IYR / (100 * state.PYR) <= 0) { setError('Error - Int'); return; }
   result(100 * Math.expm1(state.PYR * Math.log1p(state.IYR / (100 * state.PYR))));
   state.EFF = state.displayVal; saveState(state);
 }
 function nominalRate() {
   if (state.entering) { businessRegister('IYR'); return; }
-  if (!validPeriods() || 1 + state.EFF / 100 <= 0) { setError('Error - Func'); return; }
+  if (!validPeriods()) { setError('Error - P Yr'); return; }
+  if (1 + state.EFF / 100 <= 0) { setError('Error - Int'); return; }
   result(100 * state.PYR * Math.expm1(Math.log1p(state.EFF / 100) / state.PYR));
   state.IYR = state.displayVal; saveState(state);
 }
@@ -580,6 +588,7 @@ function tvmBalance(rate) {
   return state.PV * growth + state.PMT * timing * paymentFactor(rate, state.N) + state.FV;
 }
 function solveRate() {
+  if (state.N <= 0.99999 || state.N >= 1e10) return NaN;
   var points = [-0.999999999, -0.99, -0.9, -0.5, -0.1, -0.01, -0.001, 0];
   for (var p = -5; p <= 6; p += 0.2) points.push(Math.pow(10, p));
   var low, high, fl;
@@ -601,9 +610,11 @@ function solveRate() {
   return (low + high) / 2;
 }
 function solveTvm(name) {
-  if (!validPeriods() || !Number.isFinite(state.N)) { setError('Error - Func'); return; }
+  if (!validPeriods()) { setError('Error - P Yr'); return; }
+  if (name === 'IYR' && (state.N <= 0.99999 || state.N >= 1e10)) { setError('Error - n'); return; }
+  if (!Number.isFinite(state.N)) { setError('Error - Func'); return; }
   var rate = state.IYR / (100 * state.PYR);
-  if (rate <= -1) { setError('Error - Func'); return; }
+  if (name !== 'IYR' && rate <= -1) { setError('Error - Int'); return; }
   var growth = Math.exp(state.N * Math.log1p(rate));
   var factor = paymentFactor(rate, state.N) * (state.modes.annuity === 'BEGIN' ? 1 + rate : 1);
   var value;
@@ -618,7 +629,7 @@ function solveTvm(name) {
       value = ratio > 0 ? Math.log(ratio) / Math.log1p(rate) : NaN;
     }
   } else if (name === 'IYR') value = solveRate() * state.PYR * 100;
-  if (!Number.isFinite(value) || (name === 'N' && value < 0)) { setError('Error - Func'); return; }
+  if (!Number.isFinite(value) || (name === 'N' && value < 0)) { setError(name === 'IYR' ? 'Error - Soln' : 'Error - Func'); return; }
   state[name] = value;
   result(value);
 }
@@ -637,7 +648,7 @@ function registerSelect(key) {
 function clearAll() {
   var modes = state.modes;
   state = defaultState(); state.modes = modes;
-  saveState(state); render();
+  setStatus('ALL CLr');
 }
 function percent() {
   commitEntry();
@@ -681,11 +692,12 @@ function solveBusinessRegister(name) {
 function amortize() {
   if (state.entering) {
     var periods = Math.round(parseEntry(state.entry));
-    if (periods < 1 || periods > 999 || periods !== parseEntry(state.entry)) { setError('Error - Func'); return; }
+    if (periods < 1 || periods > 999 || periods !== parseEntry(state.entry)) { setError('Error - Per'); return; }
     state.amort = { periods: periods, done: 0, balance: state.PV, interest: 0, principal: 0, stage: 0 };
   }
   var a = state.amort;
-  if (!a || !validPeriods() || !Number.isFinite(state.PMT)) { setError('Error - Func'); return; }
+  if (!validPeriods()) { setError('Error - P Yr'); return; }
+  if (!a || !Number.isFinite(state.PMT)) { setError('Error - Func'); return; }
   if (a.stage === 0) {
     a.interest = 0; a.principal = 0;
     var rate = state.IYR / (100 * state.PYR);
@@ -717,7 +729,7 @@ function setCashFlowCount() {
   commitEntry();
   var n = Math.round(state.displayVal);
   if (!state.cfs.length || n < 1 || n > 99 || Math.abs(n - state.displayVal) > 1e-10) {
-    setError('Error - Func'); return;
+    setError('Error - Per'); return;
   }
   state.cfs[state.cfs.length - 1].nj = n;
   state.label = 'n ' + n;
@@ -737,7 +749,8 @@ function cashFlowNpv(periodRate) {
   return total;
 }
 function npvResult() {
-  if (!validPeriods() || 1 + state.IYR / 100 <= 0) { setError('Error - Func'); return; }
+  if (!validPeriods()) { setError('Error - P Yr'); return; }
+  if (1 + state.IYR / 100 <= 0) { setError('Error - Int'); return; }
   var rate = Math.expm1(Math.log1p(state.IYR / 100) / state.PYR);
   result(cashFlowNpv(rate));
 }
@@ -764,9 +777,9 @@ function solveIrrPeriod() {
   return positive.length ? Math.min.apply(Math, positive) : roots[0];
 }
 function irrResult() {
-  if (!validPeriods()) { setError('Error - Func'); return; }
+  if (!validPeriods()) { setError('Error - P Yr'); return; }
   var rate = solveIrrPeriod();
-  if (!Number.isFinite(rate)) { setError('Error - Func'); return; }
+  if (!Number.isFinite(rate)) { setError('Error - Soln'); return; }
   result(100 * Math.expm1(state.PYR * Math.log1p(rate)));
 }
 function accumulateStats(sign) {
@@ -785,7 +798,7 @@ function accumulateStats(sign) {
   state.label = null; saveState(state); render();
 }
 function statsPair(a, b) {
-  if (!Number.isFinite(a) || !Number.isFinite(b)) { setError('Error - Func'); return; }
+  if (!Number.isFinite(a) || !Number.isFinite(b)) { setError('Error - Stat'); return; }
   state.twoVal = { a: a, b: b, shown: 'a' };
   result(a);
   state.twoVal = { a: a, b: b, shown: 'a' };
@@ -793,7 +806,7 @@ function statsPair(a, b) {
 }
 function statFunction(kind) {
   var s = state.stats, n = s.n;
-  if (n <= 0) { setError('Error - Func'); return; }
+  if (n <= 0) { setError('Error - Stat'); return; }
   var xbar = s.sx / n, ybar = s.sy / n;
   var dx = s.sx2 - s.sx * s.sx / n;
   var dy = s.sy2 - s.sy * s.sy / n;
@@ -805,15 +818,23 @@ function statFunction(kind) {
   var x = state.displayVal;
   if (kind === 'MEAN') { statsPair(xbar, ybar); return; }
   if (kind === 'SAMPLE') {
-    if (n <= 1) { setError('Error - Func'); return; }
+    if (n <= 1) { setError('Error - Stat'); return; }
     statsPair(Math.sqrt(Math.max(0, dx / (n - 1))), Math.sqrt(Math.max(0, dy / (n - 1)))); return;
   }
   if (kind === 'POP') { statsPair(Math.sqrt(Math.max(0, dx / n)), Math.sqrt(Math.max(0, dy / n))); return; }
-  if (kind === 'XR') { statsPair(slope ? (x - (ybar - slope * xbar)) / slope : NaN, corr); return; }
-  if (kind === 'YM') { statsPair(ybar + slope * (x - xbar), slope); return; }
+  if (kind === 'XR') {
+    if (!s.sx || !s.sy || !slope) { setError('Error - Stat'); return; }
+    statsPair((x - (ybar - slope * xbar)) / slope, corr); return;
+  }
+  if (kind === 'YM') {
+    if (!slopeDen) { setError('Error - Stat'); return; }
+    statsPair(ybar + slope * (x - xbar), slope); return;
+  }
   if (kind === 'WEIGHTED') {
     var weighted = s.sy ? s.sxy / s.sy : NaN;
-    result(weighted); return;
+    if (!Number.isFinite(weighted)) setError('Error - Stat');
+    else result(weighted);
+    return;
   }
 }
 var dispatch = {
