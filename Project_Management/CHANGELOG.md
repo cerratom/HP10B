@@ -15,6 +15,11 @@ Format (keep it consistent):
 
 ## Entries
 
+### 2026-11-01 — Complete arithmetic and math handler implementation
+
+- Marked arithmetic and math handlers implemented, including INPUT-based y^x and chained calculations; manual examples remain unverified.
+- Related: T1.2 and T1.3 (`Done`), I6.
+
 ### 2026-11-01 — Use INPUT pair for y^x
 
 - y^x now consumes the base held by INPUT and the current exponent.
