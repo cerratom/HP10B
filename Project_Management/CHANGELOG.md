@@ -15,6 +15,11 @@ Format (keep it consistent):
 
 ## Entries
 
+### 2026-11-01 — Separate fixed zero decimals from full precision
+
+- `DISP 0` now renders zero decimal places; full precision is selected with `DISP` then `C`.
+- Related: T1.1 (`In Progress`).
+
 ### 2026-11-01 — Amortization and business percentage functions
 
 - Added AMORT cycles that display accumulated interest, principal, and remaining balance.

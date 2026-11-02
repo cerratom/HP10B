@@ -33,7 +33,7 @@ function defaultState() {
     cfs: [],                                 // [{cf, nj}] cash-flow groups
     stats: { n: 0, sx: 0, sy: 0, sx2: 0, sy2: 0, sxy: 0 },
     /* modes (survive CLEAR ALL and power off) */
-    modes: { annuity: 'END', disp: 2, sep: '.' },
+    modes: { annuity: 'END', disp: 2, fullPrecision: false, sep: '.' },
     /* transient entry / operation context */
     displayVal: 0,        // committed value shown when not entering
     entry: '',            // in-progress digit buffer (string)
@@ -135,7 +135,7 @@ function groupInt(intStr, sep) {
 }
 
 /* Main formatter: value → display string (≤12 chars incl. sign/sep). */
-function formatValue(v, disp, sep) {
+function formatValue(v, disp, sep, fullPrecision) {
   if (!isFinite(v)) v = (v > 0 ? 1 : -1) * Math.pow(10, 308); // clamp overflow
   if (Object.is(v, -0) || v === 0) v = 0;
   var decSep = sep, grpSep = (sep === '.') ? ',' : '.';
@@ -160,7 +160,7 @@ function formatValue(v, disp, sep) {
     return (neg ? '-' : '') + sci(digits, p.exp, disp > 0 ? disp : 1);
   }
 
-  if (disp === 0) {
+  if (fullPrecision) {
     /* full-precision mode: all significant digits, no trailing zeros */
     var f2 = p.frac.replace(/0+$/, '');
     var out = p.int + (f2 ? decSep + f2 : '');
@@ -225,7 +225,7 @@ function render() {
     text = s.msg.text;
   } else {
     text = s.entering ? (s.entry || '0').replace('.', s.modes.sep).replace('e', 'E')
-      : formatValue(s.displayVal, s.modes.disp, s.modes.sep);
+      : formatValue(s.displayVal, s.modes.disp, s.modes.sep, s.modes.fullPrecision);
   }
   dom.main.textContent = text;
   dom.cursor.hidden = !(s.entering && !s.msg);
@@ -279,7 +279,7 @@ function pressDigit(d) {
   var s = state;
   if (!s.power) return;
   if (s.msg && s.msg.kind === 'error') return;   // only C/◄ work in error
-  if (s.dispArmed) { s.modes.disp = Number(d); s.dispArmed = false; saveState(s); render(); return; }
+  if (s.dispArmed) { s.modes.disp = Number(d); s.modes.fullPrecision = false; s.dispArmed = false; saveState(s); render(); return; }
   if (s.decimalRegister && s.rclMode) { registerSelect('.' + d); return; }
   if (s.rclMode) { registerSelect(d); return; }  // STO/RCL two-step selection
   if (s.msg && s.msg.kind === 'status') clearMessage();
@@ -860,7 +860,7 @@ var dispatch = {
 
 function handleKey(key) {
   if (!state.power && key !== 'CLEAR') return;
-  if (state.dispArmed && key === 'CLEAR') { state.dispArmed = false; state.modes.disp = 0; saveState(state); render(); return; }
+  if (state.dispArmed && key === 'CLEAR') { state.dispArmed = false; state.modes.fullPrecision = true; saveState(state); render(); return; }
   if (/^[0-9]$/.test(key)) { pressDigit(key); return; }
   var action = dispatch[key];
   if (action) action();
