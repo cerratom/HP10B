@@ -31,6 +31,16 @@ Format (add new entries at the top of "Open" or "Resolved"):
 
 ## Resolved
 
+### I4 — C after OFF called a missing powerOn function
+- **Date found:** 2026-11-01
+- **Status:** Resolved
+- **Severity:** medium
+- **Symptom:** Pressing C while powered off threw a reference error instead of powering on.
+- **Repro:** Shift+C, then C.
+- **Root cause:** `pressC` referenced `powerOn` before a handler had been implemented.
+- **Fix:** Added `powerOn`, which restores default powered state and persists it.
+- **Verification:** Code path inspection and `git diff --check`; browser confirmation remains in visual/acceptance QA.
+
 ### I3 — BEGIN equation in spec had an inconsistent factor
 - **Date found:** 2026-11-01
 - **Status:** Resolved

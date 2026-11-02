@@ -15,6 +15,12 @@ Format (keep it consistent):
 
 ## Entries
 
+### 2026-11-01 — Restore power-on behavior
+
+- Added the missing powerOn routine so C after OFF restores a fresh powered calculator state.
+- Updated fidelity task statuses for annunciators, cursor, power, and error messages.
+- Related: T3.1, T3.3, T3.4 (`Done`), T3.2 (`In Progress`), I4.
+
 ### 2026-11-01 — Separate fixed zero decimals from full precision
 
 - `DISP 0` now renders zero decimal places; full precision is selected with `DISP` then `C`.

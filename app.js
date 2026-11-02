@@ -368,6 +368,13 @@ function pressC() {
   hardClearEntry();
 }
 
+function powerOn() {
+  state = defaultState();
+  state.power = true;
+  saveState(state);
+  render();
+}
+
 function hardClearEntry() {
   var s = state;
   s.entry = ''; s.entering = false;
