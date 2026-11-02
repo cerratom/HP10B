@@ -31,6 +31,16 @@ Format (add new entries at the top of "Open" or "Resolved"):
 
 ## Resolved
 
+### I8 — LCD height changed between OFF and ON
+- **Date found:** 2026-11-01
+- **Status:** Resolved
+- **Severity:** low
+- **Symptom:** The LCD area became taller when powered on and showing digits.
+- **Repro:** Toggle OFF and press C to turn ON.
+- **Root cause:** The LCD had only a minimum height, so the digit line box could increase its height when populated.
+- **Fix:** Set fixed LCD heights and a unit line-height, with a smaller fixed height at the narrowest breakpoint.
+- **Verification:** CSS review and `git diff --check`; browser confirmation remains part of visual QA.
+
 ### I7 — LCD number started at the right edge
 - **Date found:** 2026-11-01
 - **Status:** Resolved

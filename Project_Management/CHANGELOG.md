@@ -15,6 +15,11 @@ Format (keep it consistent):
 
 ## Entries
 
+### 2026-11-01 — Keep LCD height fixed while power changes
+
+- Set fixed LCD heights and line-height so empty, powered-off, and powered-on displays keep the same geometry.
+- Related: T3.5, I8.
+
 ### 2026-11-01 — Align LCD digits from left to right
 
 - Removed the flexible gap that pushed the displayed value to the right; LCD digits now start at the left edge.

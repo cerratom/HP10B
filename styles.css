@@ -152,7 +152,8 @@ html, body {
   background: var(--lcd-bg);
   border-radius: 4px;
   padding: 10px 14px;
-  min-height: 48px;
+  height: 52px;
+  min-height: 52px;
   display: flex;
   min-width: 0;
   overflow: hidden;
@@ -166,6 +167,7 @@ html, body {
 #lcd-text {
   font-family: "SF Mono", "Menlo", "Consolas", "Liberation Mono", "Courier New", monospace;
   font-size: 28px;
+  line-height: 1;
   font-weight: 400;
   color: var(--lcd-text);
   letter-spacing: 1px;
@@ -383,6 +385,7 @@ html, body {
 
   .lcd {
     padding: 8px 10px;
+    height: 40px;
     min-height: 40px;
   }
 }
