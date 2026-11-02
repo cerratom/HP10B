@@ -67,7 +67,7 @@ Live task board. Update this **every** time a task changes state.
 | T3.2  | Error messages | `In Progress` | Core function error shown and cleared with C/◄; complete manual message mapping remains. |
 | T3.3  | Blinking entry cursor | `Done` | Cursor appears during entry and hides on operation/message. |
 | T3.4  | Power on/off (`OFF`/`ON`) | `Done` | OFF clears session memory; C restores a fresh powered-on state. |
-| T3.5  | Visual QA against `Assets/HP-10B.jpg` | `Not Started` | Side-by-side pixel comparison. |
+| T3.5  | Visual QA against `Assets/HP-10B.jpg` | `In Progress` | Corrected clear logo, typography, and LCD alignment mismatches; browser screenshot comparison remains. |
 
 ## Phase 4 — Testing & verification
 
@@ -101,3 +101,4 @@ The calculator is considered **shipped** when:
 | 2026-11-01 | T1.8 → `Done`. Added Σ+/Σ− accumulation and shifted statistics/regression functions. |
 | 2026-11-01 | T0.6, T1.4, T1.9, T2.1, T2.4, T2.5 → `Done`. Added business percentage solves, amortization, complete mapped dispatch, and finalized clear/SWAP handlers. |
 | 2026-11-01 | T3.1, T3.3, T3.4 → `Done`; T3.2 → `In Progress`. Fixed C power-on after OFF and recorded I4. |
+| 2026-11-01 | T3.5 → `In Progress`. Adjusted badge shape/color, printed typography, and LCD digit alignment against the reference photo. |

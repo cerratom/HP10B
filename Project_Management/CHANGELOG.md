@@ -15,6 +15,11 @@ Format (keep it consistent):
 
 ## Entries
 
+### 2026-11-01 — Refine calculator appearance against reference photo
+
+- Changed the HP badge to a beige square, italicized the 10B and BUSINESS markings, and left-aligned LCD digits to match the physical unit.
+- Related: T3.5 (`In Progress`).
+
 ### 2026-11-01 — Restore power-on behavior
 
 - Added the missing powerOn routine so C after OFF restores a fresh powered calculator state.
