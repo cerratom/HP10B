@@ -15,6 +15,12 @@ Format (keep it consistent):
 
 ## Entries
 
+### 2026-11-01 — Finish display width and scientific formatting
+
+- Scientific notation now rounds to the active display precision; grouping separators count toward the 12-character LCD limit.
+- RND now rounds values that are stored in scientific notation.
+- Related: T1.1 (`Done`).
+
 ### 2026-11-01 — Fix body width independently of LCD contents
 
 - Set the calculator to a fixed 320px width and flex basis, matching its original minimum size; gave the page an explicit viewport width.

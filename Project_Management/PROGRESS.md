@@ -39,7 +39,7 @@ Live task board. Update this **every** time a task changes state.
 
 | ID    | Task | Status | Notes |
 |-------|------|--------|-------|
-| T1.1  | Number formatting (DISP, RND, period/comma, scientific) | `In Progress` | Display settings wired; scientific and full-precision behavior still needs manual review. |
+| T1.1  | Number formatting (DISP, RND, period/comma, scientific) | `Done` | Grouped output respects the 12-character limit; scientific formatting rounds to DISP precision. Manual verification remains. |
 | T1.2  | Arithmetic (chained, two-number INPUT functions) | `In Progress` | Basic operators, INPUT, percent, and percent change implemented; chaining needs manual review. |
 | T1.3  | Math functions (x², √x, 1/x, y^x, e^x, LN, n!, E) | `In Progress` | Core handlers added; manual behavior and edge cases remain. |
 | T1.4  | Business percentages (`%`, `%CHG`, `MAR`, `MU`, `CST`, `PRC`) | `Done` | Percent, percent change, margin, markup, and CST/PRC solve paths implemented. |
@@ -102,4 +102,5 @@ The calculator is considered **shipped** when:
 | 2026-11-01 | T0.6, T1.4, T1.9, T2.1, T2.4, T2.5 → `Done`. Added business percentage solves, amortization, complete mapped dispatch, and finalized clear/SWAP handlers. |
 | 2026-11-01 | T3.1, T3.3, T3.4 → `Done`; T3.2 → `In Progress`. Fixed C power-on after OFF and recorded I4. |
 | 2026-11-01 | T3.2 → `Done`. Transcribed manual message appendix and wired distinct calculator errors and ALL CLr status. |
+| 2026-11-01 | T1.1 → `Done`. Scientific display and grouped output now observe DISP precision and the 12-character display limit. |
 | 2026-11-01 | T3.5 → `In Progress`. Adjusted badge shape/color, printed typography, and LCD digit alignment against the reference photo. |

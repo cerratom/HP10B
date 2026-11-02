@@ -140,12 +140,16 @@ function formatValue(v, disp, sep, fullPrecision) {
   if (Object.is(v, -0) || v === 0) v = 0;
   var decSep = sep, grpSep = (sep === '.') ? ',' : '.';
 
-  function sci(mantDigits, expVal, dp) {
-    // "1.00E14" / "4.00E-12" style: mantissa with `dp` decimals + E + signed exp
-    var m = mantDigits;
-    while (m.length <= dp) m += '0';
-    var mm = m.charAt(0) + decSep + m.slice(1, 1 + dp);
-    return mm + 'E' + (expVal < 0 ? '-' : '') + String(Math.abs(expVal));
+  function sci(value, requestedDp) {
+    var dp = Math.max(0, requestedDp);
+    var output;
+    do {
+      var parts = Math.abs(value).toExponential(dp).split('e');
+      output = (value < 0 ? '-' : '') + parts[0].replace('.', decSep) + 'E' + String(Number(parts[1]));
+      if (output.length <= 12 || dp === 0) break;
+      dp--;
+    } while (dp >= 0);
+    return output;
   }
 
   if (v === 0) {
@@ -155,27 +159,21 @@ function formatValue(v, disp, sep, fullPrecision) {
   var neg = p.neg;
 
   if (p.sci) {
-    // value naturally in scientific range → device shows E notation
-    var digits = p.int + p.frac;
-    return (neg ? '-' : '') + sci(digits, p.exp, disp > 0 ? disp : 1);
+    return sci(v, fullPrecision ? 10 : disp);
   }
 
   if (fullPrecision) {
     /* full-precision mode: all significant digits, no trailing zeros */
     var f2 = p.frac.replace(/0+$/, '');
     var out = p.int + (f2 ? decSep + f2 : '');
-    if ((neg ? 1 : 0) + out.length > 12) {
-      return (neg ? '-' : '') + sci((p.int + p.frac).replace(/^0+(?=\d)/, ''), expOf(p), 9);
-    }
-    return (neg ? '-' : '') + groupInt(out.split(decSep)[0] || out, grpSep) + (f2 ? decSep + f2 : '');
+    var grouped = (neg ? '-' : '') + groupInt(p.int, grpSep) + (f2 ? decSep + f2 : '');
+    return grouped.length <= 12 ? grouped : sci(v, 10);
   }
 
   var r = roundDigits(p.int, p.frac, disp);
   var body = r.int + (disp > 0 ? decSep + r.frac : '');
-  if ((neg ? 1 : 0) + body.length > 12) {
-    return (neg ? '-' : '') + sci((p.int + p.frac).replace(/^0+(?=\d)/, ''), expOf(p), disp);
-  }
-  return (neg ? '-' : '') + groupInt(r.int, grpSep) + (disp > 0 ? decSep + r.frac : '');
+  var fixed = (neg ? '-' : '') + groupInt(r.int, grpSep) + (disp > 0 ? decSep + r.frac : '');
+  return fixed.length <= 12 ? fixed : sci(v, disp);
 }
 function expOf(p) {
   // exponent such that value = ±(int.frac)×10^exp with int having one digit
@@ -189,7 +187,7 @@ function expOf(p) {
 function roundValue(v, dp) {
   if (v === 0 || !isFinite(v)) return v;
   var p = canonParts(v);
-  if (p.sci) return v; // scientific-range rounding is handled separately later
+  if (p.sci) return parseFloat(v.toExponential(dp));
   var r = roundDigits(p.int, p.frac, dp);
   var s = r.int + '.' + (r.frac || '0');
   var out = parseFloat(s);
