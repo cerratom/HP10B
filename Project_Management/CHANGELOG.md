@@ -15,6 +15,12 @@ Format (keep it consistent):
 
 ## Entries
 
+### 2026-11-01 — NPV and IRR cash flow functions
+
+- Added CFj cash-flow groups, Nj repetition counts, NPV per-period discounting, and an IRR root finder.
+- IRR reports the annual effective rate and selects the smallest positive root when multiple roots are found.
+- Related: T1.7 (`Done`).
+
 ### 2026-11-01 — Interest conversion and TVM solve
 
 - Implemented nominal/effective conversion using P/YR, with shared I/YR/NOM storage.

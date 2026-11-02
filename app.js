@@ -648,6 +648,70 @@ function factorial() {
   for (var i = 2; i <= n; i++) value *= i;
   result(value);
 }
+function enterCashFlow() {
+  commitEntry();
+  if (state.cfs.length >= MAX_CF_GROUPS) { setError('Error - Full'); return; }
+  state.cfs.push({ cf: state.displayVal, nj: 1 });
+  state.cfView = state.cfs.length - 1;
+  state.label = 'CF ' + state.cfView;
+  saveState(state); render();
+}
+function setCashFlowCount() {
+  commitEntry();
+  var n = Math.round(state.displayVal);
+  if (!state.cfs.length || n < 1 || n > 99 || Math.abs(n - state.displayVal) > 1e-10) {
+    setError('Error - Func'); return;
+  }
+  state.cfs[state.cfs.length - 1].nj = n;
+  state.label = 'n ' + n;
+  saveState(state); render();
+}
+function cashFlowNpv(periodRate) {
+  if (periodRate <= -1 || !Number.isFinite(periodRate) || !state.cfs.length) return NaN;
+  var total = state.cfs[0].cf;
+  var period = 0;
+  for (var i = 1; i < state.cfs.length; i++) {
+    var flow = state.cfs[i];
+    for (var j = 0; j < flow.nj; j++) {
+      period++;
+      total += flow.cf * Math.exp(-period * Math.log1p(periodRate));
+    }
+  }
+  return total;
+}
+function npvResult() {
+  if (!validPeriods() || 1 + state.IYR / 100 <= 0) { setError('Error - Func'); return; }
+  var rate = Math.expm1(Math.log1p(state.IYR / 100) / state.PYR);
+  result(cashFlowNpv(rate));
+}
+function solveIrrPeriod() {
+  var points = [-0.999999999, -0.99, -0.9, -0.5, -0.1, -0.01, 0];
+  for (var p = -5; p <= 6; p += 0.1) points.push(Math.pow(10, p));
+  var roots = [];
+  for (var i = 0; i < points.length - 1; i++) {
+    var lo = points[i], hi = points[i + 1];
+    var flo = cashFlowNpv(lo), fhi = cashFlowNpv(hi);
+    if (!Number.isFinite(flo) || !Number.isFinite(fhi) || flo * fhi > 0) continue;
+    if (flo === 0) { roots.push(lo); continue; }
+    for (var k = 0; k < 100; k++) {
+      var mid = (lo + hi) / 2, fm = cashFlowNpv(mid);
+      if (!Number.isFinite(fm)) break;
+      if (Math.abs(fm) < 1e-10 || hi - lo < 1e-13 * Math.max(1, Math.abs(mid))) { lo = hi = mid; break; }
+      if (flo * fm <= 0) hi = mid;
+      else { lo = mid; flo = fm; }
+    }
+    roots.push((lo + hi) / 2);
+  }
+  if (!roots.length) return NaN;
+  var positive = roots.filter(function (r) { return r > 0; });
+  return positive.length ? Math.min.apply(Math, positive) : roots[0];
+}
+function irrResult() {
+  if (!validPeriods()) { setError('Error - Func'); return; }
+  var rate = solveIrrPeriod();
+  if (!Number.isFinite(rate)) { setError('Error - Func'); return; }
+  result(100 * Math.expm1(state.PYR * Math.log1p(rate)));
+}
 var dispatch = {
   DECIMAL: pressDecimal, NEGATE: pressSign, SCI_E: pressE,
   BACK: pressBackspace, CLEAR: pressC, INPUT: pressInput,
@@ -660,6 +724,8 @@ var dispatch = {
   PV: function () { tvmKey('PV'); }, PMT: function () { tvmKey('PMT'); },
   FV: function () { tvmKey('FV'); }, CST: function () { businessRegister('CST'); },
   NOM: nominalRate, EFF: effectiveKey,
+  CFJ: enterCashFlow, NJ: setCashFlowCount,
+  NPV: npvResult, IRR: irrResult,
   PRC: function () { businessRegister('PRC'); }, MAR: function () { businessRegister('MAR'); },
   PYR: function () { businessRegister('PYR'); },
   XPYR: function () { commitEntry(); result(state.displayVal * state.PYR); },
