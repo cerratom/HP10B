@@ -67,7 +67,7 @@ Live task board. Update this **every** time a task changes state.
 | T3.2  | Error messages | `Done` | Manual error strings and triggers transcribed; distinct function, interest, period, statistics, solve, and overflow messages wired. |
 | T3.3  | Blinking entry cursor | `Done` | Cursor appears during entry and hides on operation/message. |
 | T3.4  | Power on/off (`OFF`/`ON`) | `Done` | OFF clears session memory; C restores a fresh powered-on state. |
-| T3.5  | Visual QA against `Assets/HP-10B.jpg` | `In Progress` | Corrected clear logo, typography, and LCD alignment mismatches; browser screenshot comparison remains. |
+| T3.5  | Visual QA against `Assets/HP-10B.jpg` | `In Progress` | Corrected logo, typography, LCD alignment, and long-value overflow; browser screenshot comparison remains. |
 
 ## Phase 4 — Testing & verification
 

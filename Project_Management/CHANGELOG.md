@@ -15,6 +15,12 @@ Format (keep it consistent):
 
 ## Entries
 
+### 2026-11-01 — Keep long display values inside the calculator
+
+- Constrained the calculator body to the viewport and allowed the LCD value to shrink and clip within the display.
+- Logged the layout defect as I5; browser resize comparison remains part of visual QA.
+- Related: T3.5, I5.
+
 ### 2026-11-01 — Match calculator error messages to the manual
 
 - Read the scanned message appendix (manual pp. 133–135), transcribed error strings and triggers into the spec, and replaced generic errors at relevant calculation paths.

@@ -48,9 +48,9 @@ html, body {
     0 20px 60px rgba(0,0,0,0.5),
     0 4px 12px rgba(0,0,0,0.3),
     inset 0 1px 0 rgba(255,255,255,0.05);
-  width: 100%;
+  width: min(420px, calc(100vw - 24px));
   max-width: 420px;
-  min-width: 320px;
+  min-width: 0;
   user-select: none;
   -webkit-user-select: none;
 }
@@ -152,6 +152,8 @@ html, body {
   padding: 10px 14px;
   min-height: 48px;
   display: flex;
+  min-width: 0;
+  overflow: hidden;
   align-items: center;
   justify-content: flex-start;
   box-shadow:
@@ -168,6 +170,8 @@ html, body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  flex: 0 1 auto;
+  min-width: 0;
   max-width: 100%;
   direction: ltr;
 }
