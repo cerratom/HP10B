@@ -134,3 +134,9 @@ Format:
   fidelity (display, rounding, scientific-notation thresholds).
 - **Alternatives rejected:** Arbitrary-precision (BigInt/decimal) — rejected; not
   needed for fidelity and adds complexity.
+
+## D12 — Keyboard access by row and column
+- **Date:** 2026-11-01
+- **Status:** Accepted
+- **Decision:** `;` followed by row and column invokes any physical key; common keys also have direct shortcuts.
+- **Context / why:** The complete keypad exceeds the number of convenient one-letter shortcuts. Row and column sequences give every button a stable keyboard path without conflicting with digit entry.

@@ -50,7 +50,9 @@ function defaultState() {
     amort: null,          // active amortization context (see §11)
     msg: null,            // {text, kind:'status'|'error', restore:number|null}
     label: null,          // top-line label ('Int','Prin','bAL','CF 2','n 2')
-    shiftArmed: false     // transient; forced false on restore
+    shiftArmed: false,    // transient; forced false on restore
+    dispArmed: false,
+    decimalRegister: false
   };
 }
 
@@ -154,7 +156,7 @@ function formatValue(v, disp, sep) {
   if (p.sci) {
     // value naturally in scientific range → device shows E notation
     var digits = p.int + p.frac;
-    return sci(digits, p.exp, disp > 0 ? disp : 1);
+    return (neg ? '-' : '') + sci(digits, p.exp, disp > 0 ? disp : 1);
   }
 
   if (disp === 0) {
@@ -162,7 +164,7 @@ function formatValue(v, disp, sep) {
     var f2 = p.frac.replace(/0+$/, '');
     var out = p.int + (f2 ? decSep + f2 : '');
     if ((neg ? 1 : 0) + out.length > 12) {
-      return sci((p.int + p.frac).replace(/^0+(?=\d)/, ''), expOf(p), disp === 0 ? 9 : 0);
+      return (neg ? '-' : '') + sci((p.int + p.frac).replace(/^0+(?=\d)/, ''), expOf(p), 9);
     }
     return (neg ? '-' : '') + groupInt(out.split(decSep)[0] || out, grpSep) + (f2 ? decSep + f2 : '');
   }
@@ -170,7 +172,7 @@ function formatValue(v, disp, sep) {
   var r = roundDigits(p.int, p.frac, disp);
   var body = r.int + (disp > 0 ? decSep + r.frac : '');
   if ((neg ? 1 : 0) + body.length > 12) {
-    return sci((p.int + p.frac).replace(/^0+(?=\d)/, ''), expOf(p), disp);
+    return (neg ? '-' : '') + sci((p.int + p.frac).replace(/^0+(?=\d)/, ''), expOf(p), disp);
   }
   return (neg ? '-' : '') + groupInt(r.int, grpSep) + (disp > 0 ? decSep + r.frac : '');
 }
@@ -276,6 +278,8 @@ function pressDigit(d) {
   var s = state;
   if (!s.power) return;
   if (s.msg && s.msg.kind === 'error') return;   // only C/◄ work in error
+  if (s.dispArmed) { s.modes.disp = Number(d); s.dispArmed = false; saveState(s); render(); return; }
+  if (s.decimalRegister && s.rclMode) { registerSelect('.' + d); return; }
   if (s.rclMode) { registerSelect(d); return; }  // STO/RCL two-step selection
   if (s.msg && s.msg.kind === 'status') clearMessage();
   if (!s.entering) {
@@ -289,7 +293,7 @@ function pressDigit(d) {
     if (em[3].length < 3) s.entry = em[1] + em[2] + em[3] + d;
     saveState(s); render(); return;
   }
-  var core = s.entry.replace('-', '');
+  var core = s.entry.replace('-', '').replace('.', '');
   if (core.length >= MAX_DIGITS) return;   // 12-digit mantissa cap
   if (s.entry === '0' || s.entry === '-0') s.entry = (s.entry.charAt(0) === '-' ? '-' : '') + d;
   else s.entry += d;
@@ -300,7 +304,7 @@ function pressDecimal() {
   var s = state;
   if (!s.power) return;
   if (s.msg && s.msg.kind === 'error') return;
-  if (s.rclMode) { registerSelect('.'); return; } // '.' selects R.0–R.4 registers
+  if (s.rclMode) { s.decimalRegister = true; saveState(s); render(); return; }
   if (s.msg && s.msg.kind === 'status') clearMessage();
   if (!s.entering) { s.entry = ''; s.entering = true; s.label = null; s.twoVal = null; }
   var base = s.entry.replace(/E.*$/, '');
@@ -527,6 +531,48 @@ function pressSwap() {
 
 /* ===================== §5 KEY DISPATCH AND INITIALIZATION ================= */
 var state;
+function result(value) {
+  if (!isFinite(value)) { setError('Error - Func'); return; }
+  state.displayVal = value; state.entry = ''; state.entering = false;
+  state.other = null; state.inputArmed = false;
+  saveState(state); render();
+}
+function businessRegister(name) {
+  if (state.entering) { commitEntry(); state[name] = state.displayVal; }
+  else state.displayVal = state[name];
+  saveState(state); render();
+}
+function registerSelect(key) {
+  var index = key.charAt(0) === '.' ? 10 + Number(key.charAt(1)) : Number(key);
+  if (!Number.isInteger(index) || index < 0 || index >= state.R.length) return;
+  if (state.rclMode === 'STO') { commitEntry(); state.R[index] = state.displayVal; }
+  else result(state.R[index]);
+  state.rclMode = null; state.decimalRegister = false;
+  saveState(state); render();
+}
+function clearAll() {
+  var modes = state.modes;
+  state = defaultState(); state.modes = modes;
+  saveState(state); render();
+}
+function percent() {
+  commitEntry();
+  if (state.pendOp && state.first !== null) result(state.first * state.displayVal / 100);
+  else result(state.displayVal / 100);
+}
+function percentChange() {
+  commitEntry();
+  if (state.other === null || state.other === 0) { setError('Error - Func'); return; }
+  result((state.displayVal - state.other) / state.other * 100);
+}
+function factorial() {
+  commitEntry();
+  var n = state.displayVal;
+  if (!Number.isInteger(n) || n < 0 || n > 170) { setError('Error - Func'); return; }
+  var value = 1;
+  for (var i = 2; i <= n; i++) value *= i;
+  result(value);
+}
 var dispatch = {
   DECIMAL: pressDecimal, NEGATE: pressSign, SCI_E: pressE,
   BACK: pressBackspace, CLEAR: pressC, INPUT: pressInput,
@@ -534,23 +580,89 @@ var dispatch = {
   ADD: function () { pressOp('+'); }, SUB: function () { pressOp('-'); },
   MUL: function () { pressOp('*'); }, DIV: function () { pressOp('/'); },
   YX: function () { pressOp('^'); },
+  PCT: percent, PCTCHG: percentChange, FACT: factorial,
+  N: function () { businessRegister('N'); }, IYR: function () { businessRegister('IYR'); },
+  PV: function () { businessRegister('PV'); }, PMT: function () { businessRegister('PMT'); },
+  FV: function () { businessRegister('FV'); }, CST: function () { businessRegister('CST'); },
+  PRC: function () { businessRegister('PRC'); }, MAR: function () { businessRegister('MAR'); },
+  PYR: function () { businessRegister('PYR'); }, EFF: function () { businessRegister('EFF'); },
+  TO_M: function () { commitEntry(); state.M = state.displayVal; saveState(state); render(); },
+  RM: function () { result(state.M); },
+  M_PLUS: function () { commitEntry(); state.M += state.displayVal; saveState(state); render(); },
+  RCL: function () { state.rclMode = 'RCL'; saveState(state); render(); },
+  STO: function () { state.rclMode = 'STO'; saveState(state); render(); },
+  CLEARALL: clearAll,
+  CLSIGMA: function () { state.stats = defaultState().stats; saveState(state); render(); },
+  DISP: function () { state.dispArmed = true; saveState(state); render(); },
   SHIFT: function () { state.shiftArmed = !state.shiftArmed; saveState(state); render(); },
   BEGEND: function () { state.modes.annuity = state.modes.annuity === 'END' ? 'BEGIN' : 'END'; saveState(state); render(); },
   PERIOD_COMMA: function () { state.modes.sep = state.modes.sep === '.' ? ',' : '.'; saveState(state); render(); },
   RND: function () { commitEntry(); state.displayVal = roundValue(state.displayVal, state.modes.disp); saveState(state); render(); },
-  SQUARE: function () { commitEntry(); state.displayVal *= state.displayVal; saveState(state); render(); },
+  SQUARE: function () { commitEntry(); result(state.displayVal * state.displayVal); },
   SQRT: function () { commitEntry(); if (state.displayVal < 0) setError('Error - Func'); else { state.displayVal = Math.sqrt(state.displayVal); saveState(state); render(); } },
   RECIP: function () { commitEntry(); if (!state.displayVal) setError('Error - Func'); else { state.displayVal = 1 / state.displayVal; saveState(state); render(); } },
-  EXP: function () { commitEntry(); state.displayVal = Math.exp(state.displayVal); saveState(state); render(); },
+  EXP: function () { commitEntry(); result(Math.exp(state.displayVal)); },
   LN: function () { commitEntry(); if (state.displayVal <= 0) setError('Error - Func'); else { state.displayVal = Math.log(state.displayVal); saveState(state); render(); } },
   OFF: function () { state = defaultState(); state.power = false; clearStorage(); render(); }
 };
 
 function handleKey(key) {
   if (!state.power && key !== 'CLEAR') return;
+  if (state.dispArmed && key === 'CLEAR') { state.dispArmed = false; state.modes.disp = 0; saveState(state); render(); return; }
   if (/^[0-9]$/.test(key)) { pressDigit(key); return; }
   var action = dispatch[key];
   if (action) action();
+}
+
+function pressButton(button) {
+  var key = state.shiftArmed && button.dataset.shift ? button.dataset.shift : button.dataset.key;
+  if (key !== 'SHIFT' && state.shiftArmed) {
+    state.shiftArmed = false;
+    saveState(state);
+  }
+  handleKey(key);
+  render();
+}
+
+var keySequence = '';
+var shortcutKeys = {
+  '+': 'ADD', '-': 'SUB', '*': 'MUL', '/': 'DIV',
+  '.': 'DECIMAL', ',': 'DECIMAL', Enter: 'EQUALS', '=': 'EQUALS',
+  Backspace: 'BACK', Escape: 'CLEAR', '%': 'PCT', '^': 'YX',
+  '!': 'FACT', e: 'EXP', l: 'LN', s: 'SQRT', q: 'SQUARE',
+  n: 'N', i: 'IYR', p: 'PV', m: 'PMT', f: 'FV', c: 'CST',
+  r: 'RCL', a: 'AMORT', g: 'SWAP', v: 'INPUT', x: 'SIGMA_PLUS', y: 'MAR'
+};
+function handleKeyboard(event) {
+  if (event.altKey || event.ctrlKey || event.metaKey || event.repeat) return;
+  if (event.key === 'Shift') {
+    if (!state.shiftArmed) { state.shiftArmed = true; render(); }
+    return;
+  }
+  if (event.key === ';' && !keySequence) {
+    keySequence = ';'; event.preventDefault(); return;
+  }
+  if (keySequence) {
+    event.preventDefault();
+    if (/^[1-7]$/.test(event.key) && keySequence === ';') { keySequence += event.key; return; }
+    if (/^[1-6]$/.test(event.key) && keySequence.length === 2) {
+      var rows = document.querySelectorAll('#keypad .key-row');
+      var button = rows[Number(keySequence.charAt(1)) - 1].querySelectorAll('button')[Number(event.key) - 1];
+      keySequence = '';
+      if (button) pressButton(button);
+      return;
+    }
+    keySequence = '';
+    return;
+  }
+  var key = event.key;
+  if (state.shiftArmed && /^Digit[0-9]$/.test(event.code)) key = event.code.slice(-1);
+  var buttonKey = /^[0-9]$/.test(key) ? key : shortcutKeys[key];
+  if (!buttonKey) return;
+  event.preventDefault();
+  var button = document.querySelector('#keypad button[data-key="' + buttonKey + '"]');
+  if (button) pressButton(button);
+  else handleKey(buttonKey);
 }
 
 function init() {
@@ -565,14 +677,9 @@ function init() {
   document.getElementById('keypad').addEventListener('click', function (event) {
     var button = event.target.closest('button[data-key]');
     if (!button) return;
-    var key = state.shiftArmed && button.dataset.shift ? button.dataset.shift : button.dataset.key;
-    if (key !== 'SHIFT' && state.shiftArmed) {
-      state.shiftArmed = false;
-      saveState(state);
-    }
-    handleKey(key);
-    render();
+    pressButton(button);
   });
+  document.addEventListener('keydown', handleKeyboard);
   render();
 }
 

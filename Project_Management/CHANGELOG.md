@@ -15,6 +15,12 @@ Format (keep it consistent):
 
 ## Entries
 
+### 2026-11-01 — Extend key handlers and keyboard access
+
+- Added basic business and memory registers, display settings, percentage functions, factorial, and clearing handlers.
+- Added keyboard shortcuts and row/column sequences for every physical key; documented them in README.
+- Related: T0.6 (`In Progress`), T0.7 (`Done`), T0.8 (`Done`).
+
 ### 2026-11-01 — Connect core display and button dispatch
 
 - Connected the serializable state and LCD renderer to the HTML display, cursor, annunciators, and keypad clicks.

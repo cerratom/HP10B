@@ -43,6 +43,19 @@ python3 -m http.server 8000
 
 > A server is **not required** — the app is designed to run from `file://`.
 
+## Keyboard
+
+Digits, decimal point, `+ - * /`, `Enter`, `Backspace`, `Escape`, and `%` work directly.
+Press `Shift` to arm the yellow function of the next key. Shortcuts include `n` (N),
+`i` (I/YR), `p` (PV), `m` (PMT), `f` (FV), `v` (INPUT), `g` (K), `e` (eˣ),
+`l` (LN), `s` (√x), and `q` (x²).
+
+Every physical key is reachable by typing `;` followed by its row and column.
+For example, `;11` presses N, `;16` presses Σ+, and `;61` presses SHIFT.
+Rows count from the top and columns from the left. Use `Shift` or `;61` before
+the sequence to access the yellow function. Some financial functions are still
+being implemented.
+
 ## Source of truth
 
 - `Assets/HP-10B.jpg` — photo of the physical calculator (authoritative for layout & colors).

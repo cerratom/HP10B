@@ -32,16 +32,16 @@ Live task board. Update this **every** time a task changes state.
 | T0.4  | CSS layout & exact styling (`styles.css`) | `Done` | 370 lines: black body, green/olive LCD, dark keys, yellow shift labels, orange SHIFT, responsive breakpoints. Awaiting visual QA (T3.5). |
 | T0.5  | Core state model + display rendering (`app.js`) | `Done` | State, LCD rendering, annunciators, entry cursor, and decimal rounding integrated. Manual verification remains. |
 | T0.6  | Key dispatch / input state machine | `In Progress` | Button delegation wired for entry, arithmetic, and several shifted math keys; feature handlers remain. |
-| T0.7  | Keyboard mapping | `Not Started` | Physical keys → actions (see `specs.md → Keyboard Mapping`). |
-| T0.8  | Persistence (`sessionStorage` save/restore) | `Not Started` | Serialize `state`; restore on load; clear on OFF. |
+| T0.7  | Keyboard mapping | `Done` | Direct shortcuts plus `;` row/column sequence reach every physical key; documented in README. |
+| T0.8  | Persistence (`sessionStorage` save/restore) | `Done` | Restore on load, save on key mutations, clear on OFF; guarded for storage access failures. |
 
 ## Phase 1 — Core math & functions
 
 | ID    | Task | Status | Notes |
 |-------|------|--------|-------|
-| T1.1  | Number formatting (DISP, RND, period/comma, scientific) | `Not Started` | 12-digit internal; 0–9 decimal places; E notation. |
-| T1.2  | Arithmetic (chained, two-number INPUT functions) | `Not Started` | `+ − × ÷`, `INPUT`, `%`, `%CHG`. |
-| T1.3  | Math functions (x², √x, 1/x, y^x, e^x, LN, n!, E) | `Not Started` | One- and two-number functions. |
+| T1.1  | Number formatting (DISP, RND, period/comma, scientific) | `In Progress` | Display settings wired; scientific and full-precision behavior still needs manual review. |
+| T1.2  | Arithmetic (chained, two-number INPUT functions) | `In Progress` | Basic operators, INPUT, percent, and percent change implemented; chaining needs manual review. |
+| T1.3  | Math functions (x², √x, 1/x, y^x, e^x, LN, n!, E) | `In Progress` | Core handlers added; manual behavior and edge cases remain. |
 | T1.4  | Business percentages (`%`, `%CHG`, `MAR`, `MU`, `CST`, `PRC`) | `Not Started` | Margin/markup pair shares a register. |
 | T1.5  | Interest conversion (`NOM%` ↔ `EFF%`) | `Not Started` | Uses `P/YR`; NOM% shares I/YR register. |
 | T1.6  | TVM (`N`, `I/YR`, `PV`, `PMT`, `FV`, `P/YR`, `BEG/END`) | `Not Started` | Solve for any of the 5 given the other 4. |
@@ -53,10 +53,10 @@ Live task board. Update this **every** time a task changes state.
 
 | ID    | Task | Status | Notes |
 |-------|------|--------|-------|
-| T2.1  | Business registers (N, I/YR, PV, PMT, FV, CST, PRC, MAR/MU, P/YR, EFF%) | `Not Started` | 10 business registers. |
-| T2.2  | `M` register (`→M`, `RM`, `M+`) | `Not Started` | 3-key memory. |
-| T2.3  | Numbered registers `R0`–`R.4` (`STO`/`RCL`) | `Not Started` | 15 general registers. |
-| T2.4  | Clearing semantics (`C`, `◄`, `CLEAR ALL`, `CL Σ`) | `Not Started` | See `specs.md → Clearing`. |
+| T2.1  | Business registers (N, I/YR, PV, PMT, FV, CST, PRC, MAR/MU, P/YR, EFF%) | `In Progress` | Basic store/recall handlers added; financial solve semantics remain. |
+| T2.2  | `M` register (`→M`, `RM`, `M+`) | `Done` | Three memory handlers implemented; manual verification remains. |
+| T2.3  | Numbered registers `R0`–`R.4` (`STO`/`RCL`) | `Done` | 15 slots with two-step selection implemented; manual verification remains. |
+| T2.4  | Clearing semantics (`C`, `◄`, `CLEAR ALL`, `CL Σ`) | `In Progress` | Handlers present; exact manual clearing behavior needs review. |
 | T2.5  | `SWAP` | `Not Started` | Swap last two entries / hidden result / x↔y. |
 
 ## Phase 3 — Fidelity & polish
@@ -94,3 +94,5 @@ The calculator is considered **shipped** when:
 | 2026-11-01 | Board created. T0.1 `Done`, T0.2 `In Progress`, all else `Not Started`. |
 | 2026-11-01 | T0.2 → `Done`. T0.3 → `Done` (index.html created, 220 lines). T0.4 → `Done` (styles.css created, 370 lines). T0.5–T0.8 remain `Not Started`. |
 | 2026-11-01 | T0.5 → `Done`; T0.6 → `In Progress`. Connected state/rendering to the DOM and began button dispatch. |
+| 2026-11-01 | T0.7 and T0.8 → `Done`; T0.6 remains `In Progress`. Added keyboard access and connected existing persistence to UI actions. |
+| 2026-11-01 | T1.1–T1.3, T2.1, T2.4 → `In Progress`; T2.2 and T2.3 → `Done` as their handlers were wired. |
