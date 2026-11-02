@@ -15,6 +15,11 @@ Format (keep it consistent):
 
 ## Entries
 
+### 2026-11-01 — Visual QA confirmed in Edge
+
+- User confirmed that the calculator looks and functions correctly in Edge, including fixed LCD width and geometry.
+- Marked T0.3, T0.4, and T3.5 `Verified`.
+
 ### 2026-11-01 — Keep LCD height fixed while power changes
 
 - Set fixed LCD heights and line-height so empty, powered-off, and powered-on displays keep the same geometry.

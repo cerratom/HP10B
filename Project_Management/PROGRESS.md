@@ -28,8 +28,8 @@ Live task board. Update this **every** time a task changes state.
 |-------|------|--------|-------|
 | T0.1  | Project scaffolding (git, docs, workflow) | `Done` | git repo + README/AGENTS/specs + `Project_Management/` (PROGRESS/CHANGELOG/DECISIONS/ISSUES). |
 | T0.2  | Authoritative specification (`specs.md`) | `Done` | Full spec authored; key map verified against `Assets/HP-10B.jpg`; open items tracked in `specs.md → Appendix B`. |
-| T0.3  | HTML skeleton (`index.html`) | `Done` | 220 lines: 5×7 keypad grid (6th col rows 1–2), LCD display, annunciator line, HP branding. Awaiting visual QA (T3.5). |
-| T0.4  | CSS layout & exact styling (`styles.css`) | `Done` | 370 lines: black body, green/olive LCD, dark keys, yellow shift labels, orange SHIFT, responsive breakpoints. Awaiting visual QA (T3.5). |
+| T0.3  | HTML skeleton (`index.html`) | `Verified` | 5×7 keypad grid, LCD display, annunciators, and HP branding; visual check confirmed in Edge (T3.5). |
+| T0.4  | CSS layout & exact styling (`styles.css`) | `Verified` | Calculator appearance and fixed LCD geometry confirmed by user in Edge (T3.5). |
 | T0.5  | Core state model + display rendering (`app.js`) | `Done` | State, LCD rendering, annunciators, entry cursor, and decimal rounding integrated. Manual verification remains. |
 | T0.6  | Key dispatch / input state machine | `Done` | Keypad dispatch connected across implemented calculator functions; worked-example verification remains. |
 | T0.7  | Keyboard mapping | `Done` | Direct shortcuts plus `;` row/column sequence reach every physical key; documented in README. |
@@ -67,7 +67,7 @@ Live task board. Update this **every** time a task changes state.
 | T3.2  | Error messages | `Done` | Manual error strings and triggers transcribed; distinct function, interest, period, statistics, solve, and overflow messages wired. |
 | T3.3  | Blinking entry cursor | `Done` | Cursor appears during entry and hides on operation/message. |
 | T3.4  | Power on/off (`OFF`/`ON`) | `Done` | OFF clears session memory; C restores a fresh powered-on state. |
-| T3.5  | Visual QA against `Assets/HP-10B.jpg` | `In Progress` | Corrected logo, typography, left-to-right digits, fixed LCD width/height; browser screenshot comparison remains. |
+| T3.5  | Visual QA against `Assets/HP-10B.jpg` | `Verified` | User confirmed in Edge that the calculator looks and functions right, including fixed width and LCD alignment/height. |
 
 ## Phase 4 — Testing & verification
 
@@ -102,6 +102,7 @@ The calculator is considered **shipped** when:
 | 2026-11-01 | T0.6, T1.4, T1.9, T2.1, T2.4, T2.5 → `Done`. Added business percentage solves, amortization, complete mapped dispatch, and finalized clear/SWAP handlers. |
 | 2026-11-01 | T3.1, T3.3, T3.4 → `Done`; T3.2 → `In Progress`. Fixed C power-on after OFF and recorded I4. |
 | 2026-11-01 | T3.2 → `Done`. Transcribed manual message appendix and wired distinct calculator errors and ALL CLr status. |
+| 2026-11-01 | T0.3, T0.4, T3.5 → `Verified` based on user's Edge visual and functional confirmation. |
 | 2026-11-01 | T4.1 → `In Progress`. Added optional in-browser acceptance checks for explicit worked examples. |
 | 2026-11-01 | T1.1 → `Done`. Scientific display and grouped output now observe DISP precision and the 12-character display limit. |
 | 2026-11-01 | T1.2 and T1.3 → `Done`. Completed the INPUT-powered y^x path; all listed arithmetic and math handlers are connected. |
