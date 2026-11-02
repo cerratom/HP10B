@@ -975,6 +975,7 @@ function runAcceptanceChecks() {
   }
   var checks = [
     { id: 'A1', run: function () { '10'.split('').forEach(key); key('IYR', true); '12'.split('').forEach(key); key('PMT', true); key('PV', true); }, expected: '10.47' },
+    { id: 'A2', run: function () { '200'.split('').forEach(key); key('MUL'); '25'.split('').forEach(key); key('PCT'); key('EQUALS'); }, expected: '50.00' },
     { id: 'A3', run: function () { '200'.split('').forEach(key); key('SUB'); '25'.split('').forEach(key); key('PCT'); key('EQUALS'); }, expected: '150.00' },
     { id: 'A5', run: function () { '291'.split('').forEach(key); key('.'); key('7'); key('INPUT'); '316'.split('').forEach(key); key('.'); key('8'); key('PCT', true); }, expected: '8.60' },
     { id: 'A7', run: function () { '17'.split('').forEach(key); key('INPUT'); '29'.split('').forEach(key); key('PCT', true); }, expected: '70.59' },

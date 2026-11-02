@@ -15,6 +15,11 @@ Format (keep it consistent):
 
 ## Entries
 
+### 2026-11-01 — Add percent-of acceptance example
+
+- Corrected A2 to `200 × 25 % =` (50.00) and included it in the browser runner.
+- Related: T4.1, T4.2 (`In Progress`).
+
 ### 2026-11-01 — Extend acceptance runner with percent examples
 
 - Added A3 subtract-percent and A5 percent-change examples to the browser runner.
