@@ -15,6 +15,16 @@ Format (keep it consistent):
 
 ## Entries
 
+### 2026-11-02 — Cross-browser verification: Chromium, Chrome, Firefox, Edge
+
+- User ran `index.html?test=1` and reported all checks PASS in **Chromium**, **Chrome**,
+  **Firefox** and **Edge**. (The "real browser (Edge)" phrasing in the entry below should
+  read Chromium — the user's local browser is Chromium on Linux.)
+- Re-confirmed 15/15 in the headless Node harness against the current on-disk `app.js`.
+- **Board:** T4.3 (cross-browser verification) moved `In Progress → Blocked`: Safari cannot
+  be tested locally and requires a deployment. T1.6–T1.8 notes now name the actual browsers.
+- Related: T4.1–T4.3.
+
 ### 2026-11-02 — All 15 acceptance checks pass in browser
 
 - User reports every `?test=1` check (A1–A15, including new A9/A11–A15) PASS in a real browser.

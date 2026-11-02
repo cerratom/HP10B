@@ -44,9 +44,9 @@ Live task board. Update this **every** time a task changes state.
 | T1.3  | Math functions (x², √x, 1/x, y^x, e^x, LN, n!, E) | `Done` | Unary math, factorial, scientific exponent entry, and both y^x input paths implemented; manual examples remain to verify. |
 | T1.4  | Business percentages (`%`, `%CHG`, `MAR`, `MU`, `CST`, `PRC`) | `Verified` | Edge runner PASS for A7 (%CHG) and A8 (MAR); remaining business examples still need verification. |
 | T1.5  | Interest conversion (`NOM%` ↔ `EFF%`) | `Verified` | Edge runner PASS for A1 (NOM/EFF conversion). |
-| T1.6  | TVM (`N`, `I/YR`, `PV`, `PMT`, `FV`, `P/YR`, `BEG/END`) | `Verified` | Solve all five variables, including numerical I/YR and BEGIN timing; A12 (loan PMT −122.86, manual p. 13) passes in a real browser. |
-| T1.7  | NPV / IRR (cash flows, `Nj`) | `Verified` | CF0 + up to 14 groups, repeat counts 1–99, NPV and IRR/YR on the manual's nominal convention (D15); A11 (IRR/YR 15.96, NPV 622.85, manual pp. 17–18) passes in a real browser. |
-| T1.8  | Statistics & regression (`Σ+`/`Σ−`, means, Sx/Sy, σx/σy, r, x̂/ŷ, m, x̄w) | `Verified` | Summation, inverse regression, prediction, standard deviations, correlation, and weighted mean; A13–A15 (manual pp. 89–92) pass in a real browser. |
+| T1.6  | TVM (`N`, `I/YR`, `PV`, `PMT`, `FV`, `P/YR`, `BEG/END`) | `Verified` | Solve all five variables, including numerical I/YR and BEGIN timing; A12 (loan PMT −122.86, manual p. 13) passes in Chromium (and Chrome/Firefox/Edge). |
+| T1.7  | NPV / IRR (cash flows, `Nj`) | `Verified` | CF0 + up to 14 groups, repeat counts 1–99, NPV and IRR/YR on the manual's nominal convention (D15); A11 (IRR/YR 15.96, NPV 622.85, manual pp. 17–18) passes in Chromium (and Chrome/Firefox/Edge). |
+| T1.8  | Statistics & regression (`Σ+`/`Σ−`, means, Sx/Sy, σx/σy, r, x̂/ŷ, m, x̄w) | `Verified` | Summation, inverse regression, prediction, standard deviations, correlation, and weighted mean; A13–A15 (manual pp. 89–92) pass in Chromium (and Chrome/Firefox/Edge). |
 | T1.9  | Amortization (`AMORT`) | `Done` | Repeated AMORT cycles report interest, principal, and balance for entered periods; verify sequence against manual. |
 
 ## Phase 2 — Memory, registers & clearing
@@ -73,9 +73,9 @@ Live task board. Update this **every** time a task changes state.
 
 | ID    | Task | Status | Notes |
 |-------|------|--------|-------|
-| T4.1  | Acceptance tests (manual worked examples) | `In Progress` | User reports all 15 runner checks (A1–A15) PASS in a real browser, values transcribed from the manual (pp. 13, 17–18, 22, 89–92). Remaining coverage: math functions, amortization, registers/memory examples. |
-| T4.2  | Regression test suite | `In Progress` | All 15 runner cases pass in browser and headless Node harness; suite still needs register, amortization, and DISP/RND coverage. |
-| T4.3  | Cross-browser verification | `In Progress` | Current runner passes in Edge; Chrome, Firefox, and Safari remain. |
+| T4.1  | Acceptance tests (manual worked examples) | `In Progress` | User reports all 15 runner checks (A1–A15) PASS in Chromium; values transcribed from the manual (pp. 13, 17–18, 22, 89–92). Remaining coverage: math functions, amortization, registers/memory examples. |
+| T4.2  | Regression test suite | `In Progress` | All 15 runner cases pass in Chromium/Chrome/Firefox/Edge and the headless Node harness; suite still needs register, amortization, and DISP/RND coverage. |
+| T4.3  | Cross-browser verification | `Blocked` | User verified PASS in Chromium, Chrome, Firefox, and Edge. Safari cannot be tested until the app is deployed. |
 
 ---
 
