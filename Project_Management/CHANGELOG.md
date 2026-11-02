@@ -15,6 +15,12 @@ Format (keep it consistent):
 
 ## Entries
 
+### 2026-11-01 — Record expanded Edge acceptance results
+
+- User reports all current `?test=1` cases pass in Edge, including new A2–A6 cases.
+- Marked arithmetic `Verified`; broader acceptance coverage and other browser checks remain open.
+- Related: T1.2, T4.1–T4.3.
+
 ### 2026-11-01 — Match percent handling to manual examples
 
 - Used scanned manual pp. 31–32 to correct A4/A6 key sequences and added both to the acceptance runner.

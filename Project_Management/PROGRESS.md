@@ -40,7 +40,7 @@ Live task board. Update this **every** time a task changes state.
 | ID    | Task | Status | Notes |
 |-------|------|--------|-------|
 | T1.1  | Number formatting (DISP, RND, period/comma, scientific) | `Done` | Grouped output respects the 12-character limit; scientific formatting rounds to DISP precision. Manual verification remains. |
-| T1.2  | Arithmetic (chained, two-number INPUT functions) | `Done` | Chained operators, percent functions, parentheses, INPUT pairs, and y^x are implemented; manual examples remain to verify. |
+| T1.2  | Arithmetic (chained, two-number INPUT functions) | `Verified` | User reports Edge PASS for percent examples A2–A6 and chaining A10. |
 | T1.3  | Math functions (x², √x, 1/x, y^x, e^x, LN, n!, E) | `Done` | Unary math, factorial, scientific exponent entry, and both y^x input paths implemented; manual examples remain to verify. |
 | T1.4  | Business percentages (`%`, `%CHG`, `MAR`, `MU`, `CST`, `PRC`) | `Verified` | Edge runner PASS for A7 (%CHG) and A8 (MAR); remaining business examples still need verification. |
 | T1.5  | Interest conversion (`NOM%` ↔ `EFF%`) | `Verified` | Edge runner PASS for A1 (NOM/EFF conversion). |
@@ -73,9 +73,9 @@ Live task board. Update this **every** time a task changes state.
 
 | ID    | Task | Status | Notes |
 |-------|------|--------|-------|
-| T4.1  | Acceptance tests (manual worked examples) | `In Progress` | Optional runner covers A1–A8 except A9, plus A10; added A4 and A6 require Edge run. |
-| T4.2  | Regression test suite | `In Progress` | Optional runner covers A1–A8 except A9, plus A10; rerun after later changes. |
-| T4.3  | Cross-browser verification | `In Progress` | Edge checked by user; Chrome, Firefox, and Safari remain. |
+| T4.1  | Acceptance tests (manual worked examples) | `In Progress` | User reports Edge PASS for all current runner checks A1–A8 except A9, plus A10; remaining manual examples still need coverage. |
+| T4.2  | Regression test suite | `In Progress` | All current runner cases pass in Edge; suite still needs broader feature coverage. |
+| T4.3  | Cross-browser verification | `In Progress` | Current runner passes in Edge; Chrome, Firefox, and Safari remain. |
 
 ---
 
@@ -105,6 +105,7 @@ The calculator is considered **shipped** when:
 | 2026-11-01 | T0.3, T0.4, T3.5 → `Verified` based on user's Edge visual and functional confirmation. |
 | 2026-11-01 | T4.1 → `In Progress`. Added optional in-browser acceptance checks for explicit worked examples. |
 | 2026-11-01 | User reported all current `?test=1` checks PASS in Edge. T1.4 and T1.5 → `Verified`; T4.2 and T4.3 → `In Progress`. |
+| 2026-11-01 | User reports all expanded runner cases PASS in Edge. T1.2 → `Verified`; T4.1–T4.3 remain in progress for remaining coverage/browsers. |
 | 2026-11-01 | Added A3 and A5 to `?test=1`; both have explicit expected results in the spec and are ready for Edge verification. |
 | 2026-11-01 | Corrected A2's sequence to multiply by 25% and added it to the browser runner. |
 | 2026-11-01 | Read the manual's percentage examples; corrected A4/A6 sequences, added both to runner, and fixed percent behavior for multiplication and INPUT-based percent change. |
