@@ -31,6 +31,16 @@ Format (add new entries at the top of "Open" or "Resolved"):
 
 ## Resolved
 
+### I7 — LCD number started at the right edge
+- **Date found:** 2026-11-01
+- **Status:** Resolved
+- **Severity:** medium
+- **Symptom:** Newly entered numbers appeared at the right side of the LCD instead of beginning at the left like the physical HP-10B.
+- **Repro:** Enter any multi-digit value.
+- **Root cause:** The empty status-label span used `margin-right: auto`, consuming the available LCD width before the number.
+- **Fix:** Replaced the automatic margin with a fixed label gap so the number starts from the LCD's left edge.
+- **Verification:** CSS review and `git diff --check`; user reported the intended alignment from the reference image.
+
 ### I6 — y^x ignored the first value saved with INPUT
 - **Date found:** 2026-11-01
 - **Status:** Resolved

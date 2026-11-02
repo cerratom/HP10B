@@ -179,7 +179,7 @@ html, body {
 }
 
 .lcd-label {
-  margin-right: auto;
+  margin-right: 8px;
   color: var(--lcd-text);
   font-size: 11px;
 }
@@ -190,6 +190,19 @@ html, body {
 }
 
 .lcd-cursor[hidden] { display: none; }
+
+#test-results {
+  margin-top: 12px;
+  padding: 8px;
+  background: #eee;
+  color: #222;
+  border-radius: 4px;
+  font: 12px/1.5 monospace;
+}
+
+#test-results ol { padding-left: 20px; }
+#test-results .pass { color: #176b2c; }
+#test-results .fail { color: #a11; }
 
 @keyframes lcd-blink { 50% { opacity: 0; } }
 

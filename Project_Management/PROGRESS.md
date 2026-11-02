@@ -67,13 +67,13 @@ Live task board. Update this **every** time a task changes state.
 | T3.2  | Error messages | `Done` | Manual error strings and triggers transcribed; distinct function, interest, period, statistics, solve, and overflow messages wired. |
 | T3.3  | Blinking entry cursor | `Done` | Cursor appears during entry and hides on operation/message. |
 | T3.4  | Power on/off (`OFF`/`ON`) | `Done` | OFF clears session memory; C restores a fresh powered-on state. |
-| T3.5  | Visual QA against `Assets/HP-10B.jpg` | `In Progress` | Corrected logo, typography, LCD alignment, and long-value overflow; browser screenshot comparison remains. |
+| T3.5  | Visual QA against `Assets/HP-10B.jpg` | `In Progress` | Corrected logo, typography, left-to-right LCD digits, and long-value overflow; browser screenshot comparison remains. |
 
 ## Phase 4 — Testing & verification
 
 | ID    | Task | Status | Notes |
 |-------|------|--------|-------|
-| T4.1  | Acceptance tests (manual worked examples) | `Not Started` | See `specs.md → Testing & Acceptance`. |
+| T4.1  | Acceptance tests (manual worked examples) | `In Progress` | Added optional `?test=1` browser runner for A1, A7, A8, A10; remaining examples need known answers and browser run. |
 | T4.2  | Regression test suite | `Not Started` | Re-run all `Verified` cases after each change. |
 | T4.3  | Cross-browser verification | `Not Started` | Chrome, Firefox, Safari, Edge (modern). |
 
@@ -102,6 +102,7 @@ The calculator is considered **shipped** when:
 | 2026-11-01 | T0.6, T1.4, T1.9, T2.1, T2.4, T2.5 → `Done`. Added business percentage solves, amortization, complete mapped dispatch, and finalized clear/SWAP handlers. |
 | 2026-11-01 | T3.1, T3.3, T3.4 → `Done`; T3.2 → `In Progress`. Fixed C power-on after OFF and recorded I4. |
 | 2026-11-01 | T3.2 → `Done`. Transcribed manual message appendix and wired distinct calculator errors and ALL CLr status. |
+| 2026-11-01 | T4.1 → `In Progress`. Added optional in-browser acceptance checks for explicit worked examples. |
 | 2026-11-01 | T1.1 → `Done`. Scientific display and grouped output now observe DISP precision and the 12-character display limit. |
 | 2026-11-01 | T1.2 and T1.3 → `Done`. Completed the INPUT-powered y^x path; all listed arithmetic and math handlers are connected. |
 | 2026-11-01 | T3.5 → `In Progress`. Adjusted badge shape/color, printed typography, and LCD digit alignment against the reference photo. |

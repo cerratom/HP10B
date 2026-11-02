@@ -15,6 +15,16 @@ Format (keep it consistent):
 
 ## Entries
 
+### 2026-11-01 — Align LCD digits from left to right
+
+- Removed the flexible gap that pushed the displayed value to the right; LCD digits now start at the left edge.
+- Related: T3.5, I7.
+
+### 2026-11-01 — Add browser acceptance check runner
+
+- Added `?test=1` mode that runs explicit manual examples A1, A7, A8, and A10 and displays pass/fail results.
+- Related: T4.1 (`In Progress`).
+
 ### 2026-11-01 — Complete arithmetic and math handler implementation
 
 - Marked arithmetic and math handlers implemented, including INPUT-based y^x and chained calculations; manual examples remain unverified.
