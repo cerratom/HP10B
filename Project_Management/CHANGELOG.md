@@ -15,6 +15,12 @@ Format (keep it consistent):
 
 ## Entries
 
+### 2026-11-02 — All 15 acceptance checks pass in browser
+
+- User reports every `?test=1` check (A1–A15, including new A9/A11–A15) PASS in a real browser.
+- Marked TVM (T1.6), NPV/IRR (T1.7), and statistics/regression (T1.8) `Verified`.
+- Related: T4.1, T4.2 (`In Progress`), T4.3 (other browsers remain).
+
 ### 2026-11-02 — Expand acceptance runner to A9 and A11–A15; fix NPV/IRR and stats input
 
 - Transcribed the scanned manual's worked examples (pp. 13, 17–18, 22, 89–92) and added A9,

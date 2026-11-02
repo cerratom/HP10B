@@ -38,8 +38,8 @@ Format (add new entries at the top of "Open" or "Resolved"):
 - **Symptom:** Manual A11 example gave IRR/YR 17.18 (expected 15.96) and NPV 668.45 (expected 622.85).
 - **Repro:** `CLEAR ALL`, `12 [P/YR]`, `40000 [+/−] [CFj]`, `4700 [CFj]`, `7000 [CFj]`, `2 [Nj]`, `23000 [CFj]`, `[⇧IRR/YR]`.
 - **Root cause:** `npvResult` derived the per-period rate as `(1+I/YR)^(1/P/YR)−1` (effective annual) and `irrResult` annualized the solved root as an effective annual rate. The HP-10B uses the nominal convention (manual pp. 17–18).
-- **Fix:** `npvResult` now uses `r = (I/YR/100)/(P/YR)`; `irrResult` reports `100 × r × P/YR`. Verified: headless acceptance run now shows A11 expected values (browser confirmation still required per the board rule).
-- Related: D15, T1.7, T4.1.
+- **Fix:** `npvResult` now uses `r = (I/YR/100)/(P/YR)`; `irrResult` reports `100 × r × P/YR`. Verified: headless acceptance run now shows A11 expected values; user confirmed A11 PASS in browser. Fixed in commit 94ce412.
+- Related: D15, T1.7 (`Verified`), T4.1.
 
 ### I10 — Shifted statistics functions ignored the value being entered
 - **Date found:** 2026-11-02
@@ -48,8 +48,8 @@ Format (add new entries at the top of "Open" or "Resolved"):
 - **Symptom:** In the p. 92 forecasting example, `0 [⇧ŷ,m]` used the previous Σ+ y-value (2200) as x and displayed 937,301.25 instead of the y-intercept 376.25.
 - **Repro:** `CL Σ`, enter the p. 92 pairs, then `0 [⇧ŷ,m]`.
 - **Root cause:** `statFunction` read `state.displayVal` directly without `commitEntry()`, leaving an in-progress entry buffer unconsumed.
-- **Fix:** `statFunction` now calls `commitEntry()` first. Verified headlessly (A15 passes); browser confirmation pending.
-- Related: T1.8, T4.1.
+- **Fix:** `statFunction` now calls `commitEntry()` first. Verified: user confirmed A15 PASS in browser. Fixed in commit 94ce412.
+- Related: T1.8 (`Verified`), T4.1.
 
 ### I11 — Acceptance runner could not press shifted digit keys
 - **Date found:** 2026-11-02
